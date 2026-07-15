@@ -1,22 +1,25 @@
 {
-    "name": "Maragogi - Tábua de Marés",
-    "short_name": "Marés Maragogi",
-    "description": "Tábua de marés de Maragogi, Alagoas, Brasil",
-    "start_url": "/",
+    "name": "Marogogi - Tabua de Mares",
+    "short_name": "Mares Maragogi",
+    "description": "Tabua de mares de Maragogi, Alagoas, Brasil",
+    "start_url": "/maragogi-tides/",
+    "scope": "/maragogi-tides/",
     "display": "standalone",
     "background_color": "#0c2340",
     "theme_color": "#2196f3",
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "icon-192.png",
+            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz4KICA8cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPScjMWE1Mjc2Jy8+CiAgPHRleHQgeD0nMjU2JyB5PScyMDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nMTIwJyBmaWxsPScjNGZjM2Y3JyBmb250LWZhbWlseT0nQXJpYWwnPvCfjIo8L3RleHQ+CiAgPHRleHQgeD0nMjU2JyB5PSczNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9JyNmZmYnIGZvbnQtZmFtaWx5PSdBcmlhbCcgZm9udC13ZWlnaHQ9J2JvbGQnPk1BUsOJUzwvdGV4dD4KICA8dGV4dCB4PScyNTYnIHk9JzQxMCcgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1zaXplPSczNicgZmlsbD0nIzkwY2FmOScgZm9udC1mYW1pbHk9J0FyaWFsJz5NYXJhZ29naTwvdGV4dD4KPC9zdmc+",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
         },
         {
-            "src": "icon-512.png",
+            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz4KICA8cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPScjMWE1Mjc2Jy8+CiAgPHRleHQgeD0nMjU2JyB5PScyMDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nMTIwJyBmaWxsPScjNGZjM2Y3JyBmb250LWZhbWlseT0nQXJpYWwnPvCfjIo8L3RleHQ+CiAgPHRleHQgeD0nMjU2JyB5PSczNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9JyNmZmYnIGZvbnQtZmFtaWx5PSdBcmlhbCcgZm9udC13ZWlnaHQ9J2JvbGQnPk1BUsOJUzwvdGV4dD4KICA8dGV4dCB4PScyNTYnIHk9JzQxMCcgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC1zaXplPSczNicgZmlsbD0nIzkwY2FmOScgZm9udC1mYW1pbHk9J0FyaWFsJz5NYXJhZ29naTwvdGV4dD4KPC9zdmc+",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
         }
     ]
 }
