@@ -1,4 +1,5 @@
-const CACHE_NAME = 'mares-maragogi-v3';
+const CACHE_STATIC = 'mares-static-v4';
+const CACHE_API = 'mares-api-v1';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
@@ -8,7 +9,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
-                keys.map((key) => caches.delete(key))
+                keys.filter(k => !k.startsWith('mares-')).map(k => caches.delete(k))
             );
         })
     );
@@ -18,26 +19,54 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    if (url.hostname.includes('tabuamare') || url.hostname.includes('sunrise-sunset') || url.hostname.includes('marine-api.open-meteo')) {
+    const isAPI = url.hostname.includes('tabuamare') ||
+                  url.hostname.includes('sunrise-sunset') ||
+                  url.hostname.includes('marine-api.open-meteo') ||
+                  url.hostname.includes('corsproxy.io');
+
+    const isCDN = url.hostname.includes('cdnjs.cloudflare.com');
+
+    if (isAPI) {
         event.respondWith(
-            fetch(event.request).catch(() => {
-                return caches.match(event.request);
+            caches.open(CACHE_API).then(cache => {
+                return cache.match(event.request).then(cached => {
+                    const fetched = fetch(event.request).then(response => {
+                        if (response.ok) cache.put(event.request, response.clone());
+                        return response;
+                    }).catch(() => cached);
+                    return cached || fetched;
+                });
+            })
+        );
+        return;
+    }
+
+    if (isCDN) {
+        event.respondWith(
+            caches.open(CACHE_STATIC).then(cache => {
+                return cache.match(event.request).then(cached => {
+                    if (cached) return cached;
+                    return fetch(event.request).then(response => {
+                        if (response.ok) cache.put(event.request, response.clone());
+                        return response;
+                    });
+                });
             })
         );
         return;
     }
 
     event.respondWith(
-        fetch(event.request).then((response) => {
-            if (response.status === 200 && event.request.method === 'GET') {
-                const clone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, clone);
-                });
-            }
-            return response;
-        }).catch(() => {
-            return caches.match(event.request);
+        caches.open(CACHE_STATIC).then(cache => {
+            return cache.match(event.request).then(cached => {
+                const fetched = fetch(event.request).then(response => {
+                    if (response.ok && event.request.method === 'GET') {
+                        cache.put(event.request, response.clone());
+                    }
+                    return response;
+                }).catch(() => cached);
+                return cached || fetched;
+            });
         })
     );
 });
