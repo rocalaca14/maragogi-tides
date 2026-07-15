@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#2196f3">
+    <meta name="theme-color" content="#0c2340">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Mares Maragogi">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="manifest" href="manifest.json">
@@ -369,11 +369,13 @@
         .share-mode .week-block { padding: 6px 4px; overflow: hidden; }
         .share-mode .week-block .wb-tide { font-size: 0.6em; }
         .share-mode .week-block .wb-date { font-size: 1.1em; }
-        .share-mode .month-grid { gap: 3px; overflow: hidden; }
-        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
-        .share-mode .month-cell .mc-head { font-size: 0.5em; }
-        .share-mode .month-cell .mc-tide-row { font-size: 0.36em; }
-        .share-mode .month-weekdays span { font-size: 0.55em; }
+        .share-mode .month-grid { gap: 2px; overflow: hidden; }
+        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; aspect-ratio: 1; }
+        .share-mode .month-cell .mc-head { font-size: 0.48em; }
+        .share-mode .month-cell .mc-tide-row { font-size: 0.32em; gap: 0px; }
+        .share-mode .month-cell .mc-tide-row .mc-time { min-width: 18px; }
+        .share-mode .month-cell .mc-tide-row .mc-level { min-width: 20px; }
+        .share-mode .month-weekdays span { font-size: 0.5em; }
 
         .share-legend {
             display: none; padding: 10px 12px; margin-top: 10px;
@@ -453,17 +455,18 @@
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
         }
 
         .month-cell {
             background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px; padding: 4px 2px;
+            border-radius: 8px; padding: 3px 2px;
             display: flex; flex-direction: column;
             cursor: pointer; transition: background 0.2s; overflow: hidden;
+            aspect-ratio: 1;
         }
         .month-cell:hover { background: rgba(255,255,255,0.1); }
-        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
+        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; aspect-ratio: auto; }
         .month-cell.is-today { border-color: rgba(33,150,243,0.6); background: rgba(33,150,243,0.15); }
 
         .month-cell .mc-head {
@@ -484,21 +487,21 @@
         }
 
         .month-cell .mc-tide-row {
-            display: flex; align-items: center; font-size: 0.42em; line-height: 1;
-            white-space: nowrap; padding: 0 1px;
+            display: flex; align-items: center; font-size: 0.38em; line-height: 1.1;
+            white-space: nowrap; padding: 0 1px; gap: 1px;
         }
 
         .month-cell .mc-tide-row .mc-time {
-            opacity: 0.7;
+            opacity: 0.7; min-width: 22px;
         }
 
         .month-cell .mc-tide-row .mc-level {
-            font-weight: 600;
+            font-weight: 600; min-width: 24px; text-align: right;
         }
 
         .month-cell .mc-tide-row .mc-arrow {
-            font-weight: 900; font-size: 0.85em; width: 8px;
-            text-align: center; flex-shrink: 0; margin-left: auto;
+            font-weight: 900; font-size: 0.8em; width: 7px;
+            text-align: center; flex-shrink: 0;
         }
 
         .loading { text-align: center; padding: 40px; }
@@ -994,6 +997,9 @@
             const diffDays = Math.round((end - start) / 86400000) + 1;
             if (diffDays > 31) return alert('Máximo de 31 dias');
             closeRangePicker();
+            currentViewType = 'range';
+            currentRangeStart = new Date(start);
+            currentRangeEnd = new Date(end);
             setActiveBtn('btnRange');
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
@@ -1108,13 +1114,28 @@
             });
         }
 
+        function getShareText() {
+            const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+            const city = config.cityName || 'Maragogi';
+            const fmt = (d) => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+            if (currentViewType === 'day') {
+                return `Confira a tábua de marés de ${city} do dia ${fmt(currentDate)} 🌊`;
+            } else if (currentViewType === 'month') {
+                const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+                return `Confira a tábua de marés de ${city} de ${monthNames[currentMonth]} de ${currentYear} 🌊`;
+            } else if (currentViewType === 'range' && currentRangeStart && currentRangeEnd) {
+                return `Confira a tábua de marés de ${city} do período ${fmt(currentRangeStart)} a ${fmt(currentRangeEnd)} 🌊`;
+            } else {
+                return `Confira a tábua de marés de ${city} 🌊`;
+            }
+        }
+
         async function shareWhatsApp() {
             const btns = document.querySelectorAll('.btn-row .share-btn-whatsapp');
             btns.forEach(b => { b.textContent = 'Gerando...'; b.disabled = true; });
             try {
                 const { blob, filename } = await generateShareBlob();
-                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
-                const texto = `Confira a tábua de marés de ${config.cityName || 'Maragogi'} 🌊`;
+                const texto = getShareText();
                 if (navigator.share && navigator.canShare) {
                     const file = new File([blob], filename, { type: 'image/jpeg' });
                     const shareData = { files: [file], text: texto, title: 'Tábua de Marés' };
@@ -1178,6 +1199,9 @@
         let currentDate = new Date(today);
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
+        let currentViewType = 'day';
+        let currentRangeStart = null;
+        let currentRangeEnd = null;
         datePicker.value = formatDateInput(today);
         datePicker.addEventListener('change', () => {
             const d = new Date(datePicker.value + 'T12:00:00');
@@ -1207,6 +1231,7 @@
         }
 
         async function loadDay(date) {
+            currentViewType = 'day';
             setActiveBtn(null);
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
@@ -1219,6 +1244,7 @@
         }
 
         async function loadWeek() {
+            currentViewType = 'week';
             setActiveBtn('btnWeek');
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
@@ -1237,6 +1263,7 @@
         }
 
         async function loadMonth(year, month) {
+            currentViewType = 'month';
             setActiveBtn('btnMonth');
             if (year !== undefined) { currentYear = year; currentMonth = month; }
             const content = document.getElementById('content');

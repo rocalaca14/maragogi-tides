@@ -6,7 +6,7 @@
     "scope": "/maragogi-tides/",
     "display": "standalone",
     "background_color": "#0c2340",
-    "theme_color": "#2196f3",
+    "theme_color": "#0c2340",
     "orientation": "portrait-primary",
     "icons": [
         {
