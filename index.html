@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196f3">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Maragogi - Tábua de Marés v2</title>
+    <style>
+        /* Prevenir cache de CSS antigo */
+    </style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c2340 0%, #1a5276 30%, #2196f3 60%, #00bcd4 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .ocean-bg {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 0; overflow: hidden;
+        }
+
+        .wave {
+            position: absolute; bottom: 0; width: 200%; height: 100px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff15' d='M0,192L48,197.3C96,203,192,213,288,202.7C384,192,480,160,576,165.3C672,171,768,213,864,218.7C960,224,1056,192,1152,165.3C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            animation: wave 10s linear infinite;
+        }
+        .wave:nth-child(2) { bottom: 10px; opacity: 0.5; animation: wave 12s linear reverse infinite; }
+        .wave:nth-child(3) { bottom: 20px; opacity: 0.3; animation: wave 15s linear infinite; }
+        @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 520px; margin: 0 auto; padding: 16px;
+        }
+
+        header { text-align: center; padding: 16px 0 8px; position: relative; }
+        header h1 { font-size: 2.1em; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); }
+        header p { font-size: 0.95em; opacity: 0.85; margin-top: 2px; }
+
+        .header-content { display: flex; flex-direction: column; align-items: center; padding-left: 40px; }
+        #siteLogo { max-width: 80px; max-height: 80px; border-radius: 12px; margin-bottom: 6px; display: none; }
+
+        .site-social {
+            display: none; align-items: center; justify-content: center;
+            gap: 14px; margin: 4px 0;
+        }
+        .social-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            font-size: 0.8em; transition: color 0.2s;
+        }
+        .social-link:hover { color: #fff; }
+        .social-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .social-contact {
+            color: rgba(255,255,255,0.7); font-size: 0.8em; white-space: nowrap;
+            display: flex; align-items: center; gap: 4px;
+        }
+
+        /* Hamburger */
+        .hamburger {
+            position: absolute; top: 14px; left: 16px;
+            background: none; border: none; color: #fff;
+            font-size: 1.6em; cursor: pointer; padding: 4px 8px;
+            opacity: 0.8; transition: opacity 0.2s; z-index: 10;
+        }
+        .hamburger:hover { opacity: 1; }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute; top: 14px; right: 16px;
+            background: none; border: none; color: #fff;
+            font-size: 1.4em; cursor: pointer; padding: 4px 8px;
+            opacity: 0.8; transition: opacity 0.2s; z-index: 10;
+        }
+        .theme-toggle:hover { opacity: 1; }
+
+        /* Light Theme - via JS injection, não via CSS */
+
+        /* Sidebar */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 99; display: none;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: linear-gradient(180deg, #0c2340 0%, #1a3a5c 100%);
+            z-index: 100; transition: left 0.3s ease;
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+        }
+        .sidebar.open { left: 0; }
+
+        .sidebar-header {
+            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .sidebar-header h2 { font-size: 1.1em; font-weight: 600; }
+        .sidebar-close {
+            background: none; border: none; color: #fff; font-size: 1.3em;
+            cursor: pointer; padding: 4px;
+        }
+
+        .sidebar-menu { list-style: none; padding: 8px 0; flex: 1; }
+        .sidebar-menu li {
+            padding: 14px 20px; cursor: pointer; display: flex; align-items: center;
+            gap: 12px; font-size: 0.95em; transition: background 0.2s;
+        }
+        .sidebar-menu li:hover { background: rgba(255,255,255,0.08); }
+        .sidebar-menu li .menu-icon { font-size: 1.2em; width: 24px; text-align: center; }
+
+        /* Personalizar Panel */
+        .panel-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 200; display: none;
+            justify-content: center; align-items: center;
+        }
+        .panel-overlay.open { display: flex; }
+
+        .panel {
+            background: #1a3a5c; border-radius: 16px; padding: 24px;
+            width: 90%; max-width: 380px; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel h3 {
+            font-size: 1.15em; margin-bottom: 16px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;
+        }
+        .panel-field { margin-bottom: 16px; }
+        .panel-field label {
+            display: block; font-size: 0.85em; opacity: 0.7; margin-bottom: 6px;
+        }
+        .panel-field input[type="text"] {
+            width: 100%; padding: 10px 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+            color: #fff; font-size: 1em; outline: none;
+        }
+        .panel-field input[type="text"]:focus {
+            border-color: rgba(33,150,243,0.6); background: rgba(255,255,255,0.15);
+        }
+        .panel-field select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            border: 1px solid rgba(255,255,255,0.2); font-size: 0.9em;
+            appearance: none; cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+        .panel-field select:focus {
+            border-color: rgba(33,150,243,0.6); outline: none;
+        }
+        .logo-upload-area {
+            border: 2px dashed rgba(255,255,255,0.25); border-radius: 12px;
+            padding: 20px; text-align: center; cursor: pointer;
+            transition: all 0.2s; position: relative;
+        }
+        .logo-upload-area:hover { border-color: rgba(33,150,243,0.6); background: rgba(255,255,255,0.05); }
+        .logo-upload-area input { display: none; }
+        .logo-upload-area .upload-icon { font-size: 2em; margin-bottom: 6px; }
+        .logo-upload-area .upload-text { font-size: 0.8em; opacity: 0.6; }
+        .logo-preview { max-width: 80px; max-height: 80px; border-radius: 8px; }
+
+        .logo-preview-area {
+            display: none; text-align: center; margin-top: 10px;
+        }
+        .logo-preview-box {
+            width: 100px; height: 100px; margin: 0 auto 8px;
+            overflow: hidden; border: 2px solid rgba(255,255,255,0.2);
+            position: relative; background: rgba(0,0,0,0.2);
+        }
+        .logo-preview-box.round { border-radius: 50%; }
+        .logo-preview-box.rect { border-radius: 12px; }
+        .logo-preview-box img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.1s; transform-origin: center center;
+        }
+        .logo-zoom-controls {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .logo-zoom-controls button {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 28px; height: 28px; border-radius: 50%;
+            cursor: pointer; font-size: 1em; display: flex; align-items: center;
+            justify-content: center; transition: background 0.2s;
+        }
+        .logo-zoom-controls button:hover { background: rgba(255,255,255,0.25); }
+        .logo-zoom-controls input[type="range"] {
+            width: 100px; accent-color: #2196f3;
+        }
+
+        .logo-shape-options {
+            display: flex; gap: 12px;
+        }
+        .shape-option {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.08); padding: 8px 14px;
+            border-radius: 8px; cursor: pointer; font-size: 0.85em;
+            border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;
+        }
+        .shape-option:hover { background: rgba(255,255,255,0.12); }
+        .shape-option input[type="radio"] { accent-color: #2196f3; }
+        .btn-remove-logo {
+            background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5);
+            color: #fff; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 0.8em; margin-top: 8px; transition: background 0.2s;
+        }
+        .btn-remove-logo:hover { background: rgba(220,53,69,0.5); }
+        .panel-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .panel-btns button {
+            flex: 1; padding: 10px; border-radius: 10px; cursor: pointer;
+            font-size: 0.9em; border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.2s;
+        }
+        .panel-btn-save {
+            background: rgba(33,150,243,0.4); color: #fff; border-color: rgba(33,150,243,0.6) !important;
+        }
+        .panel-btn-save:hover { background: rgba(33,150,243,0.6); }
+        .panel-btn-cancel {
+            background: rgba(255,255,255,0.1); color: #fff;
+        }
+        .panel-btn-cancel:hover { background: rgba(255,255,255,0.2); }
+
+        /* Share Button */
+        .share-btn {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+            font-size: 0.85em; transition: all 0.2s; display: inline-flex;
+            align-items: center; gap: 5px; margin-top: 10px;
+        }
+        .share-btn:hover { background: rgba(33,150,243,0.3); border-color: rgba(33,150,243,0.5); }
+        .share-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+
+        /* Range Picker Panel */
+        .range-fields { display: flex; gap: 10px; margin-bottom: 12px; }
+        .range-fields label { display: block; font-size: 0.8em; opacity: 0.6; margin-bottom: 4px; }
+        .range-fields .field { flex: 1; }
+        .range-fields input[type="date"] {
+            width: 100%; padding: 8px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+            color: #fff; font-size: 0.9em; outline: none;
+        }
+        .range-fields input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+        /* Controls */
+        .controls {
+            display: flex; justify-content: center; gap: 8px; margin: 12px 0;
+        }
+        .controls button, .controls input[type="date"] {
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.25); color: #fff;
+            padding: 9px 18px; border-radius: 10px; cursor: pointer;
+            font-size: 0.9em; transition: all 0.3s; text-align: center;
+        }
+        .controls button:hover, .controls input[type="date"]:hover {
+            background: rgba(255,255,255,0.25); transform: translateY(-2px);
+        }
+        .controls button.active {
+            background: rgba(33,150,243,0.4); border-color: rgba(33,150,243,0.6);
+        }
+        .controls input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        .controls input[type="date"] { min-width: 130px; }
+
+        /* Card */
+        .card {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            padding: 20px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        /* ===== DAY VIEW ===== */
+        .day-header { text-align: center; margin-bottom: 16px; }
+        .day-header .day-name { font-size: 1.9em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        .day-header .day-date-row {
+            display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 4px;
+        }
+        .day-header .day-date { font-size: 1.05em; opacity: 0.7; }
+
+        .day-nav-btn {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+            font-size: 1.1em; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; padding: 0;
+        }
+        .day-nav-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+
+        .astro-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-top: 8px; font-size: 0.65em; line-height: 1.4;
+        }
+
+        .astro-side {
+            display: flex; flex-direction: column; gap: 1px;
+        }
+
+        .astro-line {
+            display: flex; align-items: center; gap: 4px;
+        }
+
+        .astro-line .astro-label { opacity: 0.5; }
+        .astro-line .astro-val { font-weight: 600; }
+        .astro-line .astro-phase { font-weight: 600; opacity: 0.8; display: flex; align-items: center; gap: 2px; }
+        .astro-icon { flex-shrink: 0; }
+
+        .current-status {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 14px; font-size: 0.9em; padding: 7px;
+            background: rgba(255,255,255,0.06); border-radius: 10px;
+        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
+        .status-dot.rising { background: #4caf50; }
+        .status-dot.falling { background: #ff9800; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .tide-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
+        .tide-table thead th {
+            font-size: 0.65em; text-transform: uppercase; letter-spacing: 1px;
+            opacity: 0.5; padding: 3px 10px; text-align: left;
+        }
+        .tide-table thead th.th-nivel { text-align: right; padding-right: 10px; }
+        .tide-table thead th:last-child { text-align: right; }
+        .tide-table tbody tr { background: rgba(255,255,255,0.06); transition: background 0.2s; }
+        .tide-table tbody tr:hover { background: rgba(255,255,255,0.1); }
+        .tide-table tbody td { padding: 10px; font-size: 0.95em; }
+        .tide-table tbody td:first-child { border-radius: 8px 0 0 8px; font-weight: 600; font-size: 1.1em; }
+        .tide-table tbody td:last-child { border-radius: 0 8px 8px 0; text-align: right; font-weight: 700; font-size: 1.1em; }
+        .tide-table .arrow-cell { text-align: right; padding-right: 14px; width: 44px; }
+
+        /* Share header (visible only in share image) */
+        .share-header { display: none; padding: 14px 16px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; }
+        .share-header-inner { display: flex; align-items: center; justify-content: space-between; }
+        .share-header-left { display: flex; align-items: center; gap: 10px; }
+        .share-header img.share-logo { max-width: 50px; max-height: 50px; border-radius: 8px; }
+        .share-header .share-title { font-size: 1.1em; font-weight: 700; }
+        .share-header .share-sub { font-size: 0.7em; opacity: 0.6; }
+        .share-header-right { text-align: right; }
+        .share-header-right .share-social { display: flex; flex-direction: column; gap: 2px; }
+        .share-header-right .share-social-item { display: flex; align-items: center; gap: 4px; font-size: 0.65em; opacity: 0.7; justify-content: flex-end; }
+        .share-header-right .share-social-item svg { width: 12px; height: 12px; flex-shrink: 0; }
+        .share-header-right .share-contact-name { margin-top: 2px; }
+        .share-mode .share-header { display: block; }
+        .share-mode .current-status { display: none !important; }
+        .share-mode .day-nav-btn { display: none !important; }
+        .share-mode .info-box { display: none !important; }
+        .share-mode .month-nav button { display: none !important; }
+        .share-mode .share-legend { display: block !important; }
+
+        .share-legend {
+            display: none; padding: 10px 12px; margin-top: 10px;
+            background: rgba(255,255,255,0.06); border-radius: 8px;
+            font-size: 0.65em; line-height: 1.6;
+        }
+        .share-legend .legend-title { font-weight: 700; margin-bottom: 4px; opacity: 0.8; }
+        .share-legend .legend-item { display: flex; align-items: center; gap: 6px; }
+        .share-legend .legend-arrow { font-weight: 900; font-size: 1.1em; width: 16px; text-align: center; }
+        .la-red { color: #ff4444; }
+        .la-green { color: #4caf50; }
+        .la-orange { color: #ff9800; }
+        .la-gray { color: #888; }
+        .tide-arrow { font-size: 1.3em; font-weight: 900; line-height: 1; }
+        .tide-arrow.red { color: #ff5252; }
+        .tide-arrow.orange { color: #ff9800; }
+        .tide-arrow.green { color: #4caf50; }
+        .tide-arrow.neutral { color: rgba(255,255,255,0.5); }
+
+        .level-value { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+        .level-m { font-size: 1em; }
+        .level-ft { font-size: 0.7em; opacity: 0.5; }
+
+        .tide-chart-container {
+            margin-top: 12px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tide-chart-label {
+            font-size: 0.6em; text-transform: uppercase; opacity: 0.5;
+            letter-spacing: 1px; margin-bottom: 6px;
+        }
+
+        .info-box {
+            background: rgba(33,150,243,0.1); border-left: 3px solid #2196f3;
+            border-radius: 0 8px 8px 0; padding: 8px 12px; margin-top: 12px;
+            font-size: 0.75em; opacity: 0.7;
+        }
+
+        /* ===== WEEK VIEW (grid de blocos) ===== */
+        .week-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+        }
+        .week-block {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px; padding: 10px 8px; text-align: center;
+        }
+        .week-block.is-today { border-color: rgba(33,150,243,0.5); background: rgba(33,150,243,0.12); }
+        .week-block .wb-day { font-size: 0.65em; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
+        .week-block .wb-date { font-size: 1.3em; font-weight: 800; margin: 2px 0 6px; }
+        .week-block .wb-tide {
+            display: flex; align-items: center; justify-content: center; gap: 3px;
+            font-size: 0.7em; margin: 2px 0; opacity: 0.8;
+        }
+        .week-block .wb-tide .wb-time { min-width: 30px; text-align: right; }
+        .week-block .wb-tide .wb-level { font-weight: 600; min-width: 34px; text-align: right; }
+        .week-block .wb-tide .wb-arrow { font-weight: 900; font-size: 0.9em; width: 14px; text-align: center; }
+
+        /* ===== MONTH VIEW (calendário) ===== */
+        .month-nav {
+            display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
+        }
+        .month-nav .month-title { font-size: 1.2em; font-weight: 700; min-width: 180px; text-align: center; }
+        .month-nav button {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            font-size: 1em; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; padding: 0;
+        }
+        .month-nav button:hover { background: rgba(255,255,255,0.25); }
+
+        .month-weekdays {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 5px;
+        }
+        .month-weekdays span {
+            text-align: center; font-size: 0.65em; text-transform: uppercase;
+            opacity: 0.45; letter-spacing: 1px; padding: 4px 0;
+        }
+
+        .month-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+        }
+
+        .month-cell {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 4px 2px;
+            display: flex; flex-direction: column;
+            cursor: pointer; transition: background 0.2s; overflow: hidden;
+        }
+        .month-cell:hover { background: rgba(255,255,255,0.1); }
+        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
+        .month-cell.is-today { border-color: rgba(33,150,243,0.6); background: rgba(33,150,243,0.15); }
+
+        .month-cell .mc-head {
+            text-align: center; font-size: 0.55em; font-weight: 700;
+            padding-bottom: 1px; margin-bottom: 1px; position: relative;
+            flex-shrink: 0;
+        }
+
+        .month-cell .mc-head::after {
+            content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        }
+
+        .month-cell .mc-body {
+            flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
+            gap: 0px; min-height: 0;
+        }
+
+        .month-cell .mc-tide-row {
+            display: flex; align-items: center; font-size: 0.42em; line-height: 1;
+            white-space: nowrap; padding: 0 1px;
+        }
+
+        .month-cell .mc-tide-row .mc-time {
+            opacity: 0.7;
+        }
+
+        .month-cell .mc-tide-row .mc-level {
+            font-weight: 600;
+        }
+
+        .month-cell .mc-tide-row .mc-arrow {
+            font-weight: 900; font-size: 0.85em; width: 8px;
+            text-align: center; flex-shrink: 0; margin-left: auto;
+        }
+
+        .loading { text-align: center; padding: 40px; }
+        .spinner {
+            width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error { text-align: center; padding: 30px; color: #ff8a80; }
+
+        footer { text-align: center; padding: 16px 0; opacity: 0.35; font-size: 0.7em; }
+
+        @media (max-width: 420px) {
+            .week-grid { grid-template-columns: repeat(2, 1fr); }
+            .month-cell { padding: 3px 1px; }
+            .month-cell .mc-head { font-size: 0.48em; }
+            .month-cell .mc-tide-row { font-size: 0.38em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-bg">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Menu</h2>
+            <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li onclick="openPersonalizar()">
+                <span class="menu-icon">&#9881;</span> Personalizar
+            </li>
+        </ul>
+    </div>
+
+    <!-- Personalizar Panel -->
+    <div class="panel-overlay" id="panelOverlay">
+        <div class="panel">
+            <h3>Personalizar</h3>
+            <div class="panel-field">
+                <label>Localização</label>
+                <select id="inputLocation" onchange="updateLocationFields()">
+                    <option value="custom">Personalizado</option>
+                </select>
+            </div>
+            <div class="panel-field">
+                <label>Nome do local</label>
+                <input type="text" id="inputCityName" placeholder="Ex: Maragogi" maxlength="40">
+            </div>
+            <div class="panel-field" id="latLngFields" style="display:none;">
+                <label>Coordenadas</label>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="inputLat" placeholder="Latitude" style="width:50%;">
+                    <input type="text" id="inputLng" placeholder="Longitude" style="width:50%;">
+                </div>
+            </div>
+            <div class="panel-field">
+                <label>UF (estado)</label>
+                <select id="inputState">
+                    <option value="al">AL - Alagoas</option>
+                    <option value="pe">PE - Pernambuco</option>
+                    <option value="rn">RN - Rio Grande do Norte</option>
+                    <option value="pb">PB - Paraíba</option>
+                    <option value="ba">BA - Bahia</option>
+                    <option value="se">SE - Sergipe</option>
+                    <option value="es">ES - Espírito Santo</option>
+                    <option value="rj">RJ - Rio de Janeiro</option>
+                    <option value="sp">SP - São Paulo</option>
+                    <option value="sc">SC - Santa Catarina</option>
+                    <option value="rs">RS - Rio Grande do Sul</option>
+                </select>
+            </div>
+            <div class="panel-field">
+                <label>Logo (PNG ou JPEG)</label>
+                <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('inputLogo').click()">
+                    <input type="file" id="inputLogo" accept="image/png,image/jpeg,image/webp" onchange="previewLogo(this)">
+                    <div class="upload-icon">&#128247;</div>
+                    <div class="upload-text">Clique para enviar imagem</div>
+                </div>
+                <div id="logoPreviewWrap" class="logo-preview-area">
+                    <div class="logo-preview-box rect" id="logoPreviewBox">
+                        <img id="logoPreview" src="">
+                    </div>
+                    <div class="logo-zoom-controls">
+                        <button onclick="adjustLogoZoom(-0.1)">−</button>
+                        <input type="range" id="logoZoomRange" min="0.5" max="3" step="0.05" value="1" oninput="setLogoZoom(this.value)">
+                        <button onclick="adjustLogoZoom(0.1)">+</button>
+                    </div>
+                    <button class="btn-remove-logo" onclick="removeLogo()">Remover logo</button>
+                </div>
+            </div>
+            <div class="panel-field">
+                <label>Formato da logo</label>
+                <div class="logo-shape-options">
+                    <label class="shape-option">
+                        <input type="radio" name="logoShape" value="round" onchange="updateLogoShape()"> Redonda
+                    </label>
+                    <label class="shape-option">
+                        <input type="radio" name="logoShape" value="rect" checked onchange="updateLogoShape()"> Retangular
+                    </label>
+                </div>
+            </div>
+            <div class="panel-field">
+                <label>Instagram (ex: @destinosmaragogi)</label>
+                <input type="text" id="inputInstagram" placeholder="@seuusuario" maxlength="30">
+            </div>
+            <div class="panel-field">
+                <label>WhatsApp (ex: 5582999999999)</label>
+                <input type="text" id="inputWhatsApp" placeholder="5582999999999" maxlength="20">
+            </div>
+            <div class="panel-field">
+                <label>Nome do contato</label>
+                <input type="text" id="inputContactName" placeholder="Ex: Rodrigo" maxlength="20">
+            </div>
+            <div class="panel-btns">
+                <button class="panel-btn-cancel" onclick="closePersonalizar()">Cancelar</button>
+                <button class="panel-btn-save" onclick="savePersonalizar()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Range Picker Panel -->
+    <div class="panel-overlay" id="rangeOverlay">
+        <div class="panel">
+            <h3>Selecionar Período</h3>
+            <div class="range-fields">
+                <div class="field">
+                    <label>Data inicial</label>
+                    <input type="date" id="rangeStart">
+                </div>
+                <div class="field">
+                    <label>Data final</label>
+                    <input type="date" id="rangeEnd">
+                </div>
+            </div>
+            <div class="panel-btns">
+                <button class="panel-btn-cancel" onclick="closeRangePicker()">Cancelar</button>
+                <button class="panel-btn-save" onclick="loadRange()">Carregar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <button class="hamburger" onclick="openSidebar()">&#9776;</button>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9790;</button>
+            <div class="header-content">
+                <img id="siteLogo" src="" alt="Logo">
+                <h1 id="siteTitle">Maragogi</h1>
+                <div id="siteSocial" class="site-social"></div>
+                <p>Tábua de Marés - Alagoas, Brasil</p>
+            </div>
+        </header>
+
+        <div class="controls">
+            <input type="date" id="datePicker">
+            <button id="btnMonth" onclick="loadMonth()">Mês</button>
+            <button id="btnRange" onclick="openRangePicker()">Dias</button>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando dados das marés...</p>
+            </div>
+        </div>
+
+        <footer>
+            Dados: API Tábua de Marés Brasil<br>
+            Porto de referência: Porto de Maceió (Alagoas)
+        </footer>
+    </div>
+
+    <script>
+        const API_DIRECT = 'https://tabuamare.devtu.qzz.io/api/v2';
+        const IS_GITHUB_PAGES = location.hostname.endsWith('github.io');
+        const API_CORS_PROXY = IS_GITHUB_PAGES
+            ? 'https://corsproxy.io/?'
+            : '/proxy/';
+        let STATE = 'al';
+        let LAT = '-9.0122';
+        let LNG = '-35.2225';
+        const MONTH_NAMES = ['', 'Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+        const DAY_NAMES = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+        const DAY_NAMES_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+        const MONTH_NAMES_SHORT = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+        const PRESET_LOCATIONS = [
+            { name: 'Maragogi (AL)', state: 'al', lat: '-9.0122', lng: '-35.2225' },
+            { name: 'Maceió (AL)', state: 'al', lat: '-9.6658', lng: '-35.7353' },
+            { name: 'Recife (PE)', state: 'pe', lat: '-8.0476', lng: '-34.8770' },
+            { name: 'Natal (RN)', state: 'rn', lat: '-5.7945', lng: '-35.2110' },
+            { name: 'João Pessoa (PB)', state: 'pb', lat: '-7.1195', lng: '-34.8450' },
+            { name: 'Salvador (BA)', state: 'ba', lat: '-12.9714', lng: '-38.5124' },
+            { name: 'Porto de Galinhas (PE)', state: 'pe', lat: '-8.5030', lng: '-34.9950' },
+            { name: 'Pipa (RN)', state: 'rn', lat: '-6.2280', lng: '-35.0510' },
+            { name: 'São Miguel dos Milagres (AL)', state: 'al', lat: '-9.2650', lng: '-35.8530' },
+            { name: 'Barra de São Miguel (AL)', state: 'al', lat: '-9.8390', lng: '-35.9050' }
+        ];
+
+        // ===== SIDEBAR =====
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('open');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+        }
+
+        // ===== PERSONALIZAR =====
+        function openPersonalizar() {
+            closeSidebar();
+            const saved = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+
+            const locSelect = document.getElementById('inputLocation');
+            locSelect.innerHTML = '<option value="custom">Personalizado</option>';
+            PRESET_LOCATIONS.forEach((loc, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = loc.name;
+                locSelect.appendChild(opt);
+            });
+
+            if (saved.locationIndex !== undefined && saved.locationIndex !== 'custom') {
+                locSelect.value = saved.locationIndex;
+                document.getElementById('latLngFields').style.display = 'none';
+            } else {
+                locSelect.value = 'custom';
+                document.getElementById('latLngFields').style.display = '';
+            }
+
+            document.getElementById('inputCityName').value = saved.cityName || 'Maragogi';
+            document.getElementById('inputLat').value = saved.lat || LAT;
+            document.getElementById('inputLng').value = saved.lng || LNG;
+            document.getElementById('inputState').value = saved.state || STATE;
+            document.getElementById('inputInstagram').value = saved.instagram || '';
+            document.getElementById('inputWhatsApp').value = saved.whatsapp || '';
+            document.getElementById('inputContactName').value = saved.contactName || '';
+            const shape = saved.logoShape || 'rect';
+            document.querySelector(`input[name="logoShape"][value="${shape}"]`).checked = true;
+            if (saved.logo) {
+                document.getElementById('logoPreview').src = saved.logo;
+                document.getElementById('logoPreviewWrap').style.display = 'block';
+                document.getElementById('logoUploadArea').style.display = 'none';
+                logoZoom = saved.logoZoom || 1;
+                document.getElementById('logoZoomRange').value = logoZoom;
+                document.getElementById('logoPreview').style.transform = `scale(${logoZoom})`;
+                updateLogoShape();
+            } else {
+                document.getElementById('logoPreviewWrap').style.display = 'none';
+                document.getElementById('logoUploadArea').style.display = '';
+            }
+            document.getElementById('panelOverlay').classList.add('open');
+        }
+
+        function updateLocationFields() {
+            const val = document.getElementById('inputLocation').value;
+            document.getElementById('latLngFields').style.display = val === 'custom' ? '' : 'none';
+            if (val !== 'custom') {
+                const loc = PRESET_LOCATIONS[parseInt(val)];
+                document.getElementById('inputCityName').value = loc.name.split(' (')[0];
+                document.getElementById('inputLat').value = loc.lat;
+                document.getElementById('inputLng').value = loc.lng;
+                document.getElementById('inputState').value = loc.state;
+            }
+        }
+        function closePersonalizar() {
+            document.getElementById('panelOverlay').classList.remove('open');
+        }
+        let logoZoom = 1;
+
+        function previewLogo(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('logoPreview').src = e.target.result;
+                document.getElementById('logoPreviewWrap').style.display = 'block';
+                document.getElementById('logoUploadArea').style.display = 'none';
+                logoZoom = 1;
+                document.getElementById('logoZoomRange').value = 1;
+                updateLogoShape();
+            };
+            reader.readAsDataURL(file);
+        }
+        function removeLogo() {
+            document.getElementById('logoPreview').src = '';
+            document.getElementById('logoPreviewWrap').style.display = 'none';
+            document.getElementById('logoUploadArea').style.display = '';
+            document.getElementById('inputLogo').value = '';
+        }
+        function setLogoZoom(val) {
+            logoZoom = parseFloat(val);
+            document.getElementById('logoPreview').style.transform = `scale(${logoZoom})`;
+        }
+        function adjustLogoZoom(delta) {
+            const range = document.getElementById('logoZoomRange');
+            let val = parseFloat(range.value) + delta;
+            val = Math.max(0.5, Math.min(3, val));
+            range.value = val;
+            setLogoZoom(val);
+        }
+        function updateLogoShape() {
+            const shape = document.querySelector('input[name="logoShape"]:checked').value;
+            const box = document.getElementById('logoPreviewBox');
+            box.className = 'logo-preview-box ' + (shape === 'round' ? 'round' : 'rect');
+        }
+        function savePersonalizar() {
+            const name = document.getElementById('inputCityName').value.trim() || 'Maragogi';
+            const logoSrc = document.getElementById('logoPreview').src || '';
+            const instagram = document.getElementById('inputInstagram').value.trim();
+            const whatsapp = document.getElementById('inputWhatsApp').value.trim();
+            const contactName = document.getElementById('inputContactName').value.trim();
+            const logoShape = document.querySelector('input[name="logoShape"]:checked').value;
+            const locationIndex = document.getElementById('inputLocation').value;
+            const lat = document.getElementById('inputLat').value.trim() || LAT;
+            const lng = document.getElementById('inputLng').value.trim() || LNG;
+            const state = document.getElementById('inputState').value || STATE;
+            const config = { cityName: name, logo: logoSrc, instagram, whatsapp, contactName, logoShape, logoZoom, locationIndex, lat, lng, state };
+            localStorage.setItem('siteConfig', JSON.stringify(config));
+            applyConfig(config);
+            closePersonalizar();
+            loadDay(new Date(currentDate));
+        }
+        function applyConfig(config) {
+            document.getElementById('siteTitle').textContent = config.cityName || 'Maragogi';
+            document.title = (config.cityName || 'Maragogi') + ' - Tábua de Marés';
+            if (config.lat) LAT = config.lat;
+            if (config.lng) LNG = config.lng;
+            if (config.state) STATE = config.state;
+            const logo = document.getElementById('siteLogo');
+            const shape = config.logoShape || 'rect';
+            if (config.logo) {
+                logo.src = config.logo;
+                logo.style.display = 'block';
+                logo.style.borderRadius = shape === 'round' ? '50%' : '12px';
+            } else {
+                logo.style.display = 'none';
+            }
+            const socialEl = document.getElementById('siteSocial');
+            let socialHtml = '';
+            if (config.instagram) {
+                socialHtml += `<a class="social-link" href="https://instagram.com/${config.instagram.replace('@','')}" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg> ${config.instagram}</a>`;
+            }
+            if (config.whatsapp) {
+                socialHtml += `<a class="social-link" href="https://wa.me/${config.whatsapp.replace(/[^0-9]/g,'')}" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> ${config.whatsapp}</a>`;
+            }
+            if (config.contactName) {
+                socialHtml += `<div class="social-contact">&#128100; ${config.contactName}</div>`;
+            }
+            socialEl.innerHTML = socialHtml;
+            socialEl.style.display = socialHtml ? 'flex' : 'none';
+        }
+
+        // ===== THEME TOGGLE =====
+        const LIGHT_CSS = `
+            * { color: #1a1a2e !important; }
+            .tide-arrow.red { color: #ff5252 !important; }
+            .tide-arrow.orange { color: #ff9800 !important; }
+            .tide-arrow.green { color: #4caf50 !important; }
+            .tide-arrow.neutral { color: #9e9e9e !important; }
+            .la-red { color: #ff4444 !important; }
+            .la-green { color: #4caf50 !important; }
+            .la-orange { color: #ff9800 !important; }
+            .la-gray { color: #888 !important; }
+            body { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 30%, #90caf9 60%, #4fc3f7 100%) !important; color: #1a1a2e !important; }
+            .card { background: rgba(255,255,255,0.92) !important; border: 1px solid rgba(0,0,0,0.1) !important; color: #1a1a2e !important; }
+            .controls button { background: rgba(255,255,255,0.85) !important; color: #1a1a2e !important; border: 1px solid rgba(0,0,0,0.18) !important; }
+            .controls button.active { background: #1976d2 !important; color: #fff !important; border-color: #1976d2 !important; }
+            input[type="date"] { color: #1a1a2e !important; background: rgba(255,255,255,0.85) !important; border: 1px solid rgba(0,0,0,0.18) !important; -webkit-text-fill-color: #1a1a2e !important; }
+            input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.4) !important; }
+            input[type="date"]::-webkit-datetime-edit { color: #1a1a2e !important; -webkit-text-fill-color: #1a1a2e !important; }
+            input[type="date"]::-webkit-datetime-edit-fields-wrapper { color: #1a1a2e !important; }
+            input[type="date"]::-webkit-datetime-edit-text { color: #1a1a2e !important; }
+            input[type="date"]::-webkit-datetime-edit-month-field { color: #1a1a2e !important; }
+            input[type="date"]::-webkit-datetime-edit-day-field { color: #1a1a2e !important; }
+            input[type="date"]::-webkit-datetime-edit-year-field { color: #1a1a2e !important; }
+            input[type="date"]::placeholder { color: rgba(0,0,0,0.5) !important; }
+            .tide-table thead th { color: rgba(0,0,0,0.5) !important; }
+            .tide-table tbody tr { background: rgba(0,0,0,0.04) !important; }
+            .day-nav-btn { color: #1a1a2e !important; background: rgba(0,0,0,0.06) !important; border: 1px solid rgba(0,0,0,0.12) !important; }
+            .current-status { background: rgba(0,0,0,0.06) !important; }
+            .info-box { background: rgba(33,150,243,0.1) !important; }
+            .hamburger, .theme-toggle { color: #1a1a2e !important; }
+            .social-link, .social-contact { color: rgba(0,0,0,0.6) !important; }
+            .astro-line .astro-label { color: rgba(0,0,0,0.5) !important; }
+            .astro-line .astro-val { color: #1a1a2e !important; }
+            .tide-chart-container { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; }
+            .tide-chart-container text { fill: rgba(0,0,0,0.55) !important; }
+            .tide-chart-container path[d^="M"][stroke-dasharray] { stroke: rgba(0,0,0,0.2) !important; }
+            .level-m { color: #1a1a2e !important; }
+            .level-ft { color: rgba(0,0,0,0.4) !important; }
+            .sidebar { background: rgba(255,255,255,0.98) !important; }
+            .sidebar li { color: #1a1a2e !important; }
+            .sidebar li:hover { background: rgba(0,0,0,0.06) !important; }
+            .panel { background: rgba(255,255,255,0.98) !important; color: #1a1a2e !important; }
+            .panel h3 { color: #1a1a2e !important; }
+            .panel-field label { color: rgba(0,0,0,0.6) !important; }
+            .panel-field input[type="text"], .panel-field input[type="date"] { background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.15) !important; -webkit-text-fill-color: #1a1a2e !important; }
+            .panel-field select { background-color: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.15) !important; }
+            .month-nav button { background: rgba(0,0,0,0.08) !important; border: 1px solid rgba(0,0,0,0.15) !important; color: #1a1a2e !important; }
+            .month-nav .month-title { color: #1a1a2e !important; }
+            .month-weekdays span { color: rgba(0,0,0,0.5) !important; }
+            .month-cell { background: rgba(255,255,255,0.85) !important; border: 2px solid rgba(0,0,0,0.2) !important; color: #1a1a2e !important; }
+            .month-cell:hover { background: rgba(33,150,243,0.12) !important; border-color: rgba(33,150,243,0.4) !important; }
+            .month-cell.is-today { border-color: #1976d2 !important; background: rgba(33,150,243,0.12) !important; }
+            .month-cell.empty { background: transparent !important; border-color: transparent !important; }
+            .month-cell .mc-head { color: #1a1a2e !important; }
+            .month-cell .mc-tide { color: rgba(0,0,0,0.6) !important; }
+            .range-fields label { color: rgba(0,0,0,0.6) !important; }
+            .range-fields input[type="date"] { background: rgba(0,0,0,0.06) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.15) !important; -webkit-text-fill-color: #1a1a2e !important; }
+            .panel-btn-cancel { background: rgba(0,0,0,0.08) !important; color: #1a1a2e !important; border-color: rgba(0,0,0,0.15) !important; }
+            .panel-btn-save { background: #1976d2 !important; color: #fff !important; }
+            .week-block { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.15) !important; color: #1a1a2e !important; }
+            .week-block.is-today { border-color: #1976d2 !important; }
+            .share-header-right .share-social-item { color: rgba(0,0,0,0.6) !important; }
+            .astro-phase svg circle:first-child { fill: #ddd !important; }
+            footer { color: rgba(0,0,0,0.5) !important; }
+            .tide-arrow { opacity: 1 !important; }
+            .share-btn { background: #1976d2 !important; color: #fff !important; }
+            .btn-row .share-btn { background: #1976d2 !important; color: #fff !important; }
+        `;
+        let lightStyleEl = null;
+
+        function setLightMode(on) {
+            if (on) {
+                if (!lightStyleEl) {
+                    lightStyleEl = document.createElement('style');
+                    lightStyleEl.id = 'light-theme-css';
+                    lightStyleEl.textContent = LIGHT_CSS;
+                    document.head.appendChild(lightStyleEl);
+                }
+                document.body.classList.add('light');
+            } else {
+                if (lightStyleEl) { lightStyleEl.remove(); lightStyleEl = null; }
+                document.body.classList.remove('light');
+            }
+        }
+
+        function toggleTheme() {
+            const isLight = document.body.classList.contains('light');
+            setLightMode(!isLight);
+            document.getElementById('themeToggle').innerHTML = !isLight ? '&#9788;' : '&#9790;';
+            localStorage.setItem('theme', !isLight ? 'light' : 'dark');
+        }
+
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                setLightMode(true);
+                document.getElementById('themeToggle').innerHTML = '&#9788;';
+            }
+        })();
+
+        // Load saved config on start
+        (function() {
+            const saved = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+            if (saved.cityName || saved.logo) applyConfig(saved);
+        })();
+
+        // ===== RANGE PICKER =====
+        function openRangePicker() {
+            const end = new Date();
+            const start = new Date();
+            start.setDate(start.getDate() + 1);
+            end.setDate(end.getDate() + 6);
+            document.getElementById('rangeStart').value = formatDateInput(start);
+            document.getElementById('rangeEnd').value = formatDateInput(end);
+            document.getElementById('rangeOverlay').classList.add('open');
+        }
+        function closeRangePicker() {
+            document.getElementById('rangeOverlay').classList.remove('open');
+        }
+        async function loadRange() {
+            const startStr = document.getElementById('rangeStart').value;
+            const endStr = document.getElementById('rangeEnd').value;
+            if (!startStr || !endStr) return alert('Selecione as datas');
+            const start = new Date(startStr + 'T12:00:00');
+            const end = new Date(endStr + 'T12:00:00');
+            if (end < start) return alert('Data final deve ser posterior');
+            const diffDays = Math.round((end - start) / 86400000) + 1;
+            if (diffDays > 31) return alert('Máximo de 31 dias');
+            closeRangePicker();
+            setActiveBtn('btnRange');
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+            const days = [], dayDates = [];
+            for (let i = 0; i < diffDays; i++) {
+                const d = new Date(start); d.setDate(start.getDate() + i);
+                days.push(d.getDate()); dayDates.push(d);
+            }
+            const month = dayDates[0].getMonth() + 1;
+            try {
+                const data = await fetchTideData(month, days);
+                renderWeekView(data, dayDates);
+            } catch (e) {
+                content.innerHTML = `<div class="error"><p>❌ ${e.message}</p></div>`;
+            }
+        }
+
+        // ===== SHARE LEGEND =====
+        function getLegendHtml() {
+            return `<div class="share-legend">
+                <div class="legend-title">Legenda</div>
+                <div class="legend-item"><span class="legend-arrow la-red">▲</span> Maré alta</div>
+                <div class="legend-item"><span class="legend-arrow la-green">▼</span> Maré baixa (ok: 6h30-17h, abaixo 0.7m)</div>
+                <div class="legend-item"><span class="legend-arrow la-orange">▼</span> Maré baixa alta ou após 17h</div>
+                <div class="legend-item"><span class="legend-arrow la-gray">▼</span> Maré baixa (fora do horário ideal)</div>
+            </div>`;
+        }
+
+        // ===== SHARE / IMAGE GENERATION =====
+        function getSocialHtml(config) {
+            let html = '';
+            if (config.instagram) {
+                html += `<div class="share-social-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg> ${config.instagram}</div>`;
+            }
+            if (config.whatsapp) {
+                html += `<div class="share-social-item"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> ${config.whatsapp}</div>`;
+            }
+            if (config.contactName) {
+                html += `<div class="share-social-item share-contact-name">&#128100; ${config.contactName}</div>`;
+            }
+            return html;
+        }
+
+        async function shareView() {
+            const el = document.getElementById('shareTarget');
+            if (!el) return;
+            const btn = document.querySelector('.share-btn');
+            btn.textContent = 'Gerando...';
+            btn.disabled = true;
+            try {
+                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+                const sh = el.querySelector('.share-header');
+                if (sh) {
+                    const logoEl = sh.querySelector('.share-logo');
+                    if (config.logo) {
+                        logoEl.src = config.logo;
+                        logoEl.style.borderRadius = (config.logoShape || 'rect') === 'round' ? '50%' : '8px';
+                    } else {
+                        logoEl.style.display = 'none';
+                    }
+                    sh.querySelector('.share-title').textContent = config.cityName || 'Maragogi';
+                    const socialRight = sh.querySelector('.share-social');
+                    if (socialRight) {
+                        const sHtml = getSocialHtml(config);
+                        socialRight.innerHTML = sHtml;
+                        socialRight.style.display = sHtml ? 'flex' : 'none';
+                    }
+                }
+                el.classList.add('share-mode');
+                const canvas = await html2canvas(el, {
+                    backgroundColor: '#0c2340',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+                el.classList.remove('share-mode');
+                if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
+                const link = document.createElement('a');
+                link.download = `tabua-mares-${config.cityName || 'maragogi'}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.92);
+                link.click();
+            } catch (e) {
+                el.classList.remove('share-mode');
+                alert('Erro ao gerar imagem');
+            }
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar';
+            btn.disabled = false;
+        }
+
+        async function exportPDF() {
+            const el = document.getElementById('shareTarget');
+            if (!el) return;
+            const btns = document.querySelectorAll('.share-btn');
+            btns.forEach(b => { b.textContent = 'Gerando PDF...'; b.disabled = true; });
+            try {
+                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+                const sh = el.querySelector('.share-header');
+                if (sh) {
+                    const logoEl = sh.querySelector('.share-logo');
+                    if (config.logo) {
+                        logoEl.src = config.logo;
+                        logoEl.style.borderRadius = (config.logoShape || 'rect') === 'round' ? '50%' : '8px';
+                    } else {
+                        logoEl.style.display = 'none';
+                    }
+                    sh.querySelector('.share-title').textContent = config.cityName || 'Maragogi';
+                    const socialRight = sh.querySelector('.share-social');
+                    if (socialRight) {
+                        const sHtml = getSocialHtml(config);
+                        socialRight.innerHTML = sHtml;
+                        socialRight.style.display = sHtml ? 'flex' : 'none';
+                    }
+                }
+                el.classList.add('share-mode');
+                const canvas = await html2canvas(el, {
+                    backgroundColor: '#0c2340',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+                el.classList.remove('share-mode');
+                if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfW = pdf.internal.pageSize.getWidth();
+                const pdfH = (canvas.height * pdfW) / canvas.width;
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+                pdf.save(`tabua-mares-${config.cityName || 'maragogi'}.pdf`);
+            } catch (e) {
+                el.classList.remove('share-mode');
+                alert('Erro ao gerar PDF');
+            }
+            btns.forEach(b => {
+                b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar';
+                b.disabled = false;
+            });
+        }
+
+        const datePicker = document.getElementById('datePicker');
+        const today = new Date();
+        let currentDate = new Date(today);
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        datePicker.value = formatDateInput(today);
+        datePicker.addEventListener('change', () => {
+            const d = new Date(datePicker.value + 'T12:00:00');
+            currentDate = d;
+            loadDay(d);
+        });
+
+        function formatDateInput(d) {
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        async function fetchTideData(month, days) {
+            const daysParam = `[${days.join(',')}]`;
+            const apiUrl = `${API_DIRECT}/geo-tabua-mare/[${LAT},${LNG}]/${STATE}/${month}/${daysParam}`;
+            try {
+                const resp = await fetch(apiUrl);
+                if (resp.ok) return await resp.json();
+            } catch (e) {}
+            const resp = await fetch(API_CORS_PROXY + encodeURIComponent(apiUrl));
+            if (!resp.ok) throw new Error('Erro ao buscar dados');
+            return await resp.json();
+        }
+
+        function setActiveBtn(id) {
+            document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+            if (id) document.getElementById(id).classList.add('active');
+        }
+
+        async function loadDay(date) {
+            setActiveBtn(null);
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+            try {
+                const data = await fetchTideData(date.getMonth() + 1, [date.getDate()]);
+                await renderDayView(data, date);
+            } catch (e) {
+                content.innerHTML = `<div class="error"><p>❌ ${e.message}</p><button onclick="loadDay(new Date())" style="margin-top:10px;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;">Tentar</button></div>`;
+            }
+        }
+
+        async function loadWeek() {
+            setActiveBtn('btnWeek');
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+            const days = [], dayDates = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today); d.setDate(today.getDate() + i);
+                days.push(d.getDate()); dayDates.push(d);
+            }
+            const month = dayDates[0].getMonth() + 1;
+            try {
+                const data = await fetchTideData(month, days);
+                renderWeekView(data, dayDates);
+            } catch (e) {
+                content.innerHTML = `<div class="error"><p>❌ ${e.message}</p></div>`;
+            }
+        }
+
+        async function loadMonth(year, month) {
+            setActiveBtn('btnMonth');
+            if (year !== undefined) { currentYear = year; currentMonth = month; }
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const days = Array.from({length: daysInMonth}, (_, i) => i + 1);
+            try {
+                const data = await fetchTideData(currentMonth + 1, days);
+                renderMonthView(data, currentYear, currentMonth);
+            } catch (e) {
+                content.innerHTML = `<div class="error"><p>❌ ${e.message}</p></div>`;
+            }
+        }
+
+        function getTideStatus(hours) {
+            if (!hours || hours.length < 2) return { text: 'Indisponível', class: '' };
+            const now = new Date();
+            const cm = now.getHours() * 60 + now.getMinutes();
+            for (let i = 0; i < hours.length - 1; i++) {
+                const [h1,m1] = hours[i].hour.split(':').map(Number);
+                const [h2,m2] = hours[i+1].hour.split(':').map(Number);
+                if (cm >= h1*60+m1 && cm <= h2*60+m2) {
+                    return hours[i].level < hours[i+1].level
+                        ? { text: 'Maré subindo', class: 'rising' }
+                        : { text: 'Maré descendo', class: 'falling' };
+                }
+            }
+            return { text: 'Fora do horário', class: '' };
+        }
+
+        function getArrowInfo(isHigh, level, hourStr) {
+            if (isHigh) return { symbol: '▲', colorClass: 'red' };
+            const p = hourStr.split(':');
+            const totalMin = parseInt(p[0])*60 + parseInt(p[1]);
+            const inWindow = totalMin >= 390 && totalMin < 1020;
+            if (level <= 0.7 && inWindow) return { symbol: '▼', colorClass: 'green' };
+            if (level > 0.7 || parseInt(p[0]) >= 17) return { symbol: '▼', colorClass: 'orange' };
+            return { symbol: '▼', colorClass: 'neutral' };
+        }
+
+        function arrowHtml(arrow, size) {
+            return `<span class="tide-arrow ${arrow.colorClass}" style="font-size:${size||1}em">${arrow.symbol}</span>`;
+        }
+
+        function generateTideChart(hours, meanLevel) {
+            if (!hours || hours.length < 2) return '';
+            const w = 320, h = 100, padL = 30, padR = 10, padT = 10, padB = 20;
+            const chartW = w - padL - padR;
+            const chartH = h - padT - padB;
+
+            const levels = hours.map(h => h.level);
+            const minL = Math.min(...levels) - 0.2;
+            const maxL = Math.max(...levels) + 0.2;
+            const rangeL = maxL - minL || 1;
+
+            const getX = (i) => padL + (i / (hours.length - 1)) * chartW;
+            const getY = (lvl) => padT + chartH - ((lvl - minL) / rangeL) * chartH;
+
+            function getArrowColor(isHigh, level, hourStr) {
+                if (isHigh) return '#ff5252';
+                const p = hourStr.split(':');
+                const totalMin = parseInt(p[0])*60 + parseInt(p[1]);
+                const inWindow = totalMin >= 390 && totalMin < 1020;
+                if (level <= 0.7 && inWindow) return '#4caf50';
+                if (level > 0.7 || parseInt(p[0]) >= 17) return '#ff9800';
+                return '#9e9e9e';
+            }
+
+            const pts = hours.map((hr, i) => ({ x: getX(i), y: getY(hr.level) }));
+
+            let pathD = `M ${pts[0].x} ${pts[0].y}`;
+            for (let i = 1; i < pts.length; i++) {
+                const prev = pts[i - 1];
+                const curr = pts[i];
+                const tension = 0.35;
+                const dx = (curr.x - prev.x) * tension;
+                pathD += ` C ${prev.x + dx} ${prev.y}, ${curr.x - dx} ${curr.y}, ${curr.x} ${curr.y}`;
+            }
+
+            let areaD = `M ${pts[0].x} ${padT + chartH} L ${pts[0].x} ${pts[0].y}`;
+            for (let i = 1; i < pts.length; i++) {
+                const prev = pts[i - 1];
+                const curr = pts[i];
+                const dx = (curr.x - prev.x) * 0.35;
+                areaD += ` C ${prev.x + dx} ${prev.y}, ${curr.x - dx} ${curr.y}, ${curr.x} ${curr.y}`;
+            }
+            areaD += ` L ${pts[pts.length - 1].x} ${padT + chartH} Z`;
+
+            const meanY = getY(meanLevel);
+            const meanLine = `M ${padL} ${meanY} L ${w - padR} ${meanY}`;
+
+            let dots = '';
+            hours.forEach((hr, i) => {
+                const isHigh = hr.level >= meanLevel;
+                const color = getArrowColor(isHigh, hr.level, hr.hour);
+                dots += `<circle cx="${pts[i].x}" cy="${pts[i].y}" r="3" fill="${color}" stroke="#fff" stroke-width="0.5"/>`;
+            });
+
+            const tickStep = Math.max(1, Math.floor(hours.length / 6));
+            let ticks = '';
+            hours.forEach((hr, i) => {
+                if (i % tickStep === 0 || i === hours.length - 1) {
+                    const x = pts[i].x;
+                    ticks += `<text x="${x}" y="${h - 2}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="7">${hr.hour.substring(0,5)}</text>`;
+                }
+            });
+
+            let yLabels = '';
+            const ySteps = 4;
+            for (let s = 0; s <= ySteps; s++) {
+                const val = minL + (rangeL * s / ySteps);
+                const y = getY(val);
+                yLabels += `<text x="${padL - 4}" y="${y + 3}" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="7">${val.toFixed(1)}</text>`;
+            }
+
+            return `
+                <div class="tide-chart-label">Gráfico de Marés</div>
+                <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;">
+                    <defs>
+                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#2196f3" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#2196f3" stop-opacity="0.05"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="${areaD}" fill="url(#chartGrad)"/>
+                    <path d="${meanLine}" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" stroke-dasharray="4,3"/>
+                    <path d="${pathD}" fill="none" stroke="#2196f3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    ${dots}
+                    ${ticks}
+                    ${yLabels}
+                    <text x="${padL - 4}" y="${meanY - 4}" text-anchor="end" fill="rgba(255,255,255,0.3)" font-size="6">média</text>
+                </svg>`;
+        }
+
+        // ===== SUN & MOON =====
+        async function fetchSunTimes(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}`;
+            const apiUrl = `https://api.sunrise-sunset.org/json?lat=${LAT}&lng=${LNG}&date=${dateStr}&formatted=0`;
+            try {
+                let resp;
+                try {
+                    resp = await fetch(apiUrl);
+                    if (!resp.ok) throw new Error();
+                } catch (e) {
+                    resp = await fetch(API_CORS_PROXY + encodeURIComponent(apiUrl));
+                }
+                const json = await resp.json();
+                if (json.status !== 'OK') return null;
+                const r = json.results;
+                const fmt = (iso) => {
+                    const dt = new Date(iso);
+                    const h = (dt.getUTCHours() - 3 + 24) % 24;
+                    const mm = dt.getUTCMinutes();
+                    return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+                };
+                return { sunrise: fmt(r.sunrise), sunset: fmt(r.sunset) };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function fetchSeaTemp(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}`;
+            const apiUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LNG}&daily=ocean_temperature_2m_max,ocean_temperature_2m_min&timezone=America%2FMaceio&start_date=${dateStr}&end_date=${dateStr}`;
+            try {
+                const resp = await fetch(apiUrl);
+                const json = await resp.json();
+                if (json.daily && json.daily.ocean_temperature_2m_max) {
+                    const tMax = json.daily.ocean_temperature_2m_max[0];
+                    const tMin = json.daily.ocean_temperature_2m_min[0];
+                    if (tMax !== null) {
+                        return { max: tMax, min: tMin !== null ? tMin : tMax };
+                    }
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function calcMoonInfo(date) {
+            const daysSince2000 = (date - new Date(2000, 0, 6, 18, 14)) / 86400000;
+            const lunarAge = ((daysSince2000 % 29.53059) + 29.53059) % 29.53059;
+            const phase = lunarAge / 29.53059;
+
+            let phaseName, phaseEmoji;
+            if (phase < 0.03 || phase >= 0.97) { phaseName = 'Lua Nova'; phaseEmoji = '🌑'; }
+            else if (phase < 0.22) { phaseName = 'Crescente'; phaseEmoji = '🌒'; }
+            else if (phase < 0.28) { phaseName = 'Quarto Crescente'; phaseEmoji = '🌓'; }
+            else if (phase < 0.47) { phaseName = 'Gibosa Crescente'; phaseEmoji = '🌔'; }
+            else if (phase < 0.53) { phaseName = 'Lua Cheia'; phaseEmoji = '🌕'; }
+            else if (phase < 0.72) { phaseName = 'Gibosa Minguante'; phaseEmoji = '🌖'; }
+            else if (phase < 0.78) { phaseName = 'Quarto Minguante'; phaseEmoji = '🌗'; }
+            else { phaseName = 'Minguante'; phaseEmoji = '🌘'; }
+
+            const synodicMonth = 29.53059;
+            const knownNewMoon = new Date(2000, 0, 6, 18, 14);
+            const daysSinceKnown = (date - knownNewMoon) / 86400000;
+            const frac = (daysSinceKnown / synodicMonth) - Math.floor(daysSinceKnown / synodicMonth);
+            const moonriseHour = ((1 - frac) * 24 + 5.5) % 24;
+            const mrH = Math.floor(moonriseHour);
+            const mrM = Math.round((moonriseHour - mrH) * 60);
+
+            return {
+                emoji: phaseEmoji,
+                name: phaseName,
+                phase: phase,
+                rise: `${String(mrH).padStart(2,'0')}:${String(mrM % 60).padStart(2,'0')}`
+            };
+        }
+
+        function getMoonSVG(phase, size) {
+            size = size || 32;
+            const r = size / 2 - 1;
+            const cx = size / 2;
+            const cy = size / 2;
+
+            let illuminateX;
+            if (phase <= 0.5) {
+                illuminateX = 2 * phase;
+            } else {
+                illuminateX = 2 * (1 - phase);
+            }
+
+            const sweep = phase <= 0.5 ? 1 : 0;
+            const largeArc = Math.abs(illuminateX) > 0.5 ? 1 : 0;
+
+            const edgeX = cx + (cx - 1) * (2 * illuminateX - 1);
+
+            let litPath;
+            if (phase < 0.03 || phase >= 0.97) {
+                litPath = '';
+            } else if (phase > 0.47 && phase < 0.53) {
+                litPath = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#F5E6B8"/>`;
+            } else {
+                litPath = `
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#3a3a4a"/>
+                    <path d="M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy + r} A ${Math.abs(edgeX - cx)} ${r} 0 0 ${phase <= 0.5 ? 1 : 0} ${cx} ${cy - r}" fill="#F5E6B8"/>
+                `;
+            }
+
+            return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                <circle cx="${cx}" cy="${cy}" r="${r}" fill="#3a3a4a" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                ${litPath}
+            </svg>`;
+        }
+
+        function navigateDay(offset) {
+            currentDate.setDate(currentDate.getDate() + offset);
+            datePicker.value = formatDateInput(currentDate);
+            loadDay(new Date(currentDate));
+        }
+
+        // ===== SWIPE (mobile) =====
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const content = document.getElementById('content');
+            content.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+                isSwiping = true;
+            }, { passive: true });
+
+            content.addEventListener('touchend', (e) => {
+                if (!isSwiping) return;
+                const dx = e.changedTouches[0].screenX - touchStartX;
+                const dy = e.changedTouches[0].screenY - touchStartY;
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                    if (dx > 0) {
+                        navigateDay(-1);
+                    } else {
+                        navigateDay(1);
+                    }
+                }
+                isSwiping = false;
+            }, { passive: true });
+        });
+
+        // ===== DAY VIEW =====
+        async function renderDayView(data, date) {
+            const content = document.getElementById('content');
+            const harbor = data.data[0];
+            const dayData = harbor.months[0].days[0];
+            const hours = dayData.hours;
+            const meanLevel = harbor.mean_level;
+            const status = getTideStatus(hours);
+            const dayName = DAY_NAMES[date.getDay()];
+            const d = String(date.getDate()).padStart(2,'0');
+            const m = String(date.getMonth()+1).padStart(2,'0');
+            const y = date.getFullYear();
+
+            const sun = await fetchSunTimes(date);
+            const moon = calcMoonInfo(date);
+            const seaTemp = await fetchSeaTemp(date);
+
+            let rows = '';
+            hours.forEach(h => {
+                const isHigh = h.level >= meanLevel;
+                const arrow = getArrowInfo(isHigh, h.level, h.hour);
+                rows += `<tr>
+                    <td>${h.hour.substring(0,5)}</td>
+                    <td><div class="level-value"><span class="level-m">${h.level.toFixed(2)}m</span><span class="level-ft">(${(h.level*3.28084).toFixed(1)}ft)</span></div></td>
+                    <td class="arrow-cell">${arrowHtml(arrow, 1.3)}</td>
+                </tr>`;
+            });
+
+            const astroHtml = (sun || moon) ? `
+                <div class="astro-row">
+                    <div class="astro-side">
+                        ${sun ? `
+                            <div class="astro-line">
+                                <svg class="astro-icon" width="22" height="22" viewBox="0 0 32 32">
+                                    <defs>
+                                        <linearGradient id="sunrise-grad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#FFB347"/>
+                                            <stop offset="100%" stop-color="#FF6B35"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <line x1="4" y1="22" x2="28" y2="22" stroke="#FFB347" stroke-width="1.5" opacity="0.6"/>
+                                    <circle cx="16" cy="16" r="5" fill="url(#sunrise-grad)"/>
+                                    <line x1="16" y1="5" x2="16" y2="8" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="24.5" y1="7.5" x2="22.5" y2="9.5" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="27" y1="16" x2="24" y2="16" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="7.5" y1="7.5" x2="9.5" y2="9.5" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="5" y1="16" x2="8" y2="16" stroke="#FFB347" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                </svg>
+                                <span class="astro-label">Nascer do sol</span> <span class="astro-val">${sun.sunrise}</span>
+                            </div>
+                            <div class="astro-line">
+                                <svg class="astro-icon" width="22" height="22" viewBox="0 0 32 32">
+                                    <defs>
+                                        <linearGradient id="sunset-grad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#FF6B35"/>
+                                            <stop offset="100%" stop-color="#C62368"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <line x1="4" y1="22" x2="28" y2="22" stroke="#FF6B35" stroke-width="1.5" opacity="0.6"/>
+                                    <circle cx="16" cy="22" r="5" fill="url(#sunset-grad)"/>
+                                    <line x1="16" y1="11" x2="16" y2="14" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="24.5" y1="13.5" x2="22.5" y2="15.5" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="27" y1="22" x2="24" y2="22" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="7.5" y1="13.5" x2="9.5" y2="15.5" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <line x1="5" y1="22" x2="8" y2="22" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                </svg>
+                                <span class="astro-label">Pôr do sol</span> <span class="astro-val">${sun.sunset}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="astro-side" style="text-align:right;">
+                        ${moon ? `
+                            <div class="astro-line"><span class="astro-phase">${getMoonSVG(moon.phase, 28)} <span style="vertical-align:middle;margin-left:4px;">${moon.name}</span></span></div>
+                            <div class="astro-line"><span class="astro-label">Nascer da lua</span> <span class="astro-val">${moon.rise}</span></div>
+                        ` : ''}
+                        ${seaTemp ? `
+                            <div class="astro-line"><span class="astro-label">🌡 Temp do mar</span> <span class="astro-val">${seaTemp.min.toFixed(1)}° ~ ${seaTemp.max.toFixed(1)}°C</span></div>
+                        ` : ''}
+                    </div>
+                </div>` : '';
+
+            content.innerHTML = `
+                <div id="shareTarget" class="card">
+                    <div class="share-header">
+                        <div class="share-header-inner">
+                            <div class="share-header-left">
+                                <img class="share-logo" src="" alt="Logo">
+                                <div>
+                                    <div class="share-title">Maragogi</div>
+                                    <div class="share-sub">Tábua de Marés</div>
+                                </div>
+                            </div>
+                            <div class="share-header-right">
+                                <div class="share-social"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="day-header">
+                        <div class="day-name">${dayName}</div>
+                        <div class="day-date-row">
+                            <button class="day-nav-btn" onclick="navigateDay(-1)">◀</button>
+                            <div class="day-date">${d}/${m}/${y}</div>
+                            <button class="day-nav-btn" onclick="navigateDay(1)">▶</button>
+                        </div>
+                        ${astroHtml}
+                    </div>
+                    ${status.class ? `<div class="current-status"><div class="status-dot ${status.class}"></div><span>${status.text} agora</span></div>` : ''}
+                    <table class="tide-table">
+                        <thead><tr><th>Horário</th><th class="th-nivel">Nível</th><th></th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                    <div class="tide-chart-container">
+                        ${generateTideChart(hours, meanLevel)}
+                    </div>
+                    <div class="info-box">
+                        ▲ Alta (vermelho) | ▼ Baixa ok (verde 6h30-17h &lt;0.7m) | ▼ Baixa (cinza) | ▼ Alta baixa/pós 17h (laranja)
+                    </div>
+                    ${getLegendHtml()}
+                </div>
+                <div class="btn-row">
+                    <button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button>
+                    <button class="share-btn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
+                </div>`;
+        }
+
+        // ===== WEEK VIEW (grid de blocos) =====
+        function renderWeekView(data, dates) {
+            const content = document.getElementById('content');
+            const harbor = data.data[0];
+            const meanLevel = harbor.mean_level;
+            let blocks = '';
+
+            dates.forEach((date, i) => {
+                const dayData = harbor.months[0].days[i];
+                if (!dayData) return;
+                const hours = dayData.hours;
+                const isToday = date.toDateString() === today.toDateString();
+                const dayName = DAY_NAMES[date.getDay()];
+                const dayNum = date.getDate();
+
+                let tides = '';
+                hours.forEach(h => {
+                    const isHigh = h.level >= meanLevel;
+                    const arrow = getArrowInfo(isHigh, h.level, h.hour);
+                    tides += `<div class="wb-tide">
+                        <span class="wb-time" style="opacity:0.6">${h.hour.substring(0,5)}</span>
+                        <span style="opacity:0.3">-</span>
+                        <span class="wb-level">${h.level.toFixed(2)}</span>
+                        <span class="wb-arrow tide-arrow ${arrow.colorClass}">${arrow.symbol}</span>
+                    </div>`;
+                });
+
+                blocks += `<div class="week-block${isToday ? ' is-today' : ''}">
+                    <div class="wb-day">${dayName}</div>
+                    <div class="wb-date">${dayNum}</div>
+                    ${tides}
+                </div>`;
+            });
+
+            const firstDate = dates[0];
+            const lastDate = dates[dates.length - 1];
+            const fmtD = (dt) => `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+            const periodLabel = dates.length === 7 && firstDate.toDateString() === today.toDateString()
+                ? 'Próximos 7 dias'
+                : `${fmtD(firstDate)} a ${fmtD(lastDate)}`;
+
+            content.innerHTML = `
+                <div id="shareTarget" class="card">
+                    <div class="share-header">
+                        <div class="share-header-inner">
+                            <div class="share-header-left">
+                                <img class="share-logo" src="" alt="Logo">
+                                <div>
+                                    <div class="share-title">Maragogi</div>
+                                    <div class="share-sub">${periodLabel}</div>
+                                </div>
+                            </div>
+                            <div class="share-header-right">
+                                <div class="share-social"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="week-grid">${blocks}</div>
+                    ${getLegendHtml()}
+                </div>
+                <div style="text-align:center"><button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button></div>`;
+        }
+
+        // ===== MONTH VIEW (calendário) =====
+        function navigateMonth(offset) {
+            currentMonth += offset;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            loadMonth(currentYear, currentMonth);
+        }
+
+        function renderMonthView(data, year, month) {
+            const content = document.getElementById('content');
+            const harbor = data.data[0];
+            const meanLevel = harbor.mean_level;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+
+            let cells = '';
+            for (let i = 0; i < firstDay; i++) {
+                cells += '<div class="month-cell empty"></div>';
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dayData = harbor.months[0].days[d - 1];
+                const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
+
+                let tides = '';
+                if (dayData) {
+                    dayData.hours.forEach(h => {
+                        const isHigh = h.level >= meanLevel;
+                        const arrow = getArrowInfo(isHigh, h.level, h.hour);
+                        tides += `<div class="mc-tide-row">
+                            <span class="mc-time">${h.hour.substring(0,5)}</span>
+                            <span style="opacity:0.3">-</span>
+                            <span class="mc-level">${h.level.toFixed(2)}</span>
+                            <span class="mc-arrow tide-arrow ${arrow.colorClass}">${arrow.symbol}</span>
+                        </div>`;
+                    });
+                }
+
+                cells += `<div class="month-cell${isToday ? ' is-today' : ''}" onclick="goToDay(${year},${month},${d})">
+                    <div class="mc-head">${d}</div>
+                    <div class="mc-body">${tides}</div>
+                </div>`;
+            }
+
+            content.innerHTML = `
+                <div id="shareTarget" class="card">
+                    <div class="share-header">
+                        <div class="share-header-inner">
+                            <div class="share-header-left">
+                                <img class="share-logo" src="" alt="Logo">
+                                <div>
+                                    <div class="share-title">Maragogi</div>
+                                    <div class="share-sub">${MONTH_NAMES[month + 1]} ${year}</div>
+                                </div>
+                            </div>
+                            <div class="share-header-right">
+                                <div class="share-social"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="month-nav">
+                        <button onclick="navigateMonth(-1)">◀</button>
+                        <div class="month-title">${MONTH_NAMES[month + 1]} ${year}</div>
+                        <button onclick="navigateMonth(1)">▶</button>
+                    </div>
+                    <div class="month-weekdays">
+                        ${DAY_NAMES_SHORT.map(d => `<span>${d}</span>`).join('')}
+                    </div>
+                    <div class="month-grid">${cells}</div>
+                    ${getLegendHtml()}
+                </div>
+                <div style="text-align:center"><button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button></div>`;
+        }
+
+        function goToDay(y, m, d) {
+            const date = new Date(y, m, d, 12);
+            currentDate = date;
+            datePicker.value = formatDateInput(date);
+            loadDay(date);
+        }
+
+        // Init
+        loadToday();
+        async function loadToday() {
+            setActiveBtn(null);
+            currentDate = new Date(today);
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+            try {
+                const data = await fetchTideData(today.getMonth() + 1, [today.getDate()]);
+                await renderDayView(data, today);
+            } catch (e) {
+                content.innerHTML = `<div class="error"><p>❌ ${e.message}</p></div>`;
+            }
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
