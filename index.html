@@ -370,11 +370,11 @@
         .share-mode .week-block .wb-tide { font-size: 0.6em; }
         .share-mode .week-block .wb-date { font-size: 1.1em; }
         .share-mode .month-grid { gap: 2px; overflow: hidden; }
-        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; aspect-ratio: 1; }
-        .share-mode .month-cell .mc-head { font-size: 0.48em; }
-        .share-mode .month-cell .mc-tide-row { font-size: 0.32em; gap: 0px; }
-        .share-mode .month-cell .mc-tide-row .mc-time { min-width: 18px; }
-        .share-mode .month-cell .mc-tide-row .mc-level { min-width: 20px; }
+        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
+        .share-mode .month-cell .mc-head { font-size: 0.45em; }
+        .share-mode .month-cell .mc-tide-row { font-size: 0.3em; }
+        .share-mode .month-cell .mc-tide-row .mc-time { }
+        .share-mode .month-cell .mc-tide-row .mc-level { }
         .share-mode .month-weekdays span { font-size: 0.5em; }
 
         .share-legend {
@@ -455,7 +455,7 @@
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
         }
 
         .month-cell {
@@ -463,14 +463,13 @@
             border-radius: 8px; padding: 3px 2px;
             display: flex; flex-direction: column;
             cursor: pointer; transition: background 0.2s; overflow: hidden;
-            aspect-ratio: 1;
         }
         .month-cell:hover { background: rgba(255,255,255,0.1); }
-        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; aspect-ratio: auto; }
+        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
         .month-cell.is-today { border-color: rgba(33,150,243,0.6); background: rgba(33,150,243,0.15); }
 
         .month-cell .mc-head {
-            text-align: center; font-size: 0.55em; font-weight: 700;
+            text-align: center; font-size: 0.5em; font-weight: 700;
             padding-bottom: 1px; margin-bottom: 1px; position: relative;
             flex-shrink: 0;
         }
@@ -483,24 +482,24 @@
 
         .month-cell .mc-body {
             flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
-            gap: 0px; min-height: 0;
+            gap: 0; min-height: 0;
         }
 
         .month-cell .mc-tide-row {
-            display: flex; align-items: center; font-size: 0.38em; line-height: 1.1;
-            white-space: nowrap; padding: 0 1px; gap: 1px;
+            display: flex; align-items: center; font-size: 0.36em; line-height: 1;
+            white-space: nowrap; padding: 0; gap: 0;
         }
 
         .month-cell .mc-tide-row .mc-time {
-            opacity: 0.7; min-width: 22px;
+            opacity: 0.7;
         }
 
         .month-cell .mc-tide-row .mc-level {
-            font-weight: 600; min-width: 24px; text-align: right;
+            font-weight: 600;
         }
 
         .month-cell .mc-tide-row .mc-arrow {
-            font-weight: 900; font-size: 0.8em; width: 7px;
+            font-weight: 900; font-size: 0.8em; width: 6px;
             text-align: center; flex-shrink: 0;
         }
 
@@ -1773,10 +1772,7 @@
                         const isHigh = h.level >= meanLevel;
                         const arrow = getArrowInfo(isHigh, h.level, h.hour);
                         tides += `<div class="mc-tide-row">
-                            <span class="mc-time">${h.hour.substring(0,5)}</span>
-                            <span style="opacity:0.3">-</span>
-                            <span class="mc-level">${h.level.toFixed(2)}</span>
-                            <span class="mc-arrow tide-arrow ${arrow.colorClass}">${arrow.symbol}</span>
+                            <span class="mc-time">${h.hour.substring(0,5)}</span><span style="opacity:0.3">-</span><span class="mc-level">${h.level.toFixed(2)}</span><span class="mc-arrow tide-arrow ${arrow.colorClass}">${arrow.symbol}</span>
                         </div>`;
                     });
                 }
