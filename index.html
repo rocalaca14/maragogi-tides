@@ -364,6 +364,16 @@
         .share-mode .info-box { display: none !important; }
         .share-mode .month-nav button { display: none !important; }
         .share-mode .share-legend { display: block !important; }
+        .share-mode#shareTarget { overflow: hidden; width: 100%; }
+        .share-mode .week-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; overflow: hidden; }
+        .share-mode .week-block { padding: 6px 4px; overflow: hidden; }
+        .share-mode .week-block .wb-tide { font-size: 0.6em; }
+        .share-mode .week-block .wb-date { font-size: 1.1em; }
+        .share-mode .month-grid { gap: 3px; overflow: hidden; }
+        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
+        .share-mode .month-cell .mc-head { font-size: 0.5em; }
+        .share-mode .month-cell .mc-tide-row { font-size: 0.36em; }
+        .share-mode .month-weekdays span { font-size: 0.55em; }
 
         .share-legend {
             display: none; padding: 10px 12px; margin-top: 10px;
@@ -1052,12 +1062,20 @@
                 }
             }
             el.classList.add('share-mode');
+            const origWidth = el.style.width;
+            const origOverflow = el.style.overflow;
+            el.style.width = '520px';
+            el.style.overflow = 'hidden';
             const canvas = await html2canvas(el, {
                 backgroundColor: '#0c2340',
                 scale: 2,
                 useCORS: true,
-                logging: false
+                logging: false,
+                width: 520,
+                windowWidth: 520
             });
+            el.style.width = origWidth;
+            el.style.overflow = origOverflow;
             el.classList.remove('share-mode');
             if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
             const config2 = JSON.parse(localStorage.getItem('siteConfig') || '{}');
