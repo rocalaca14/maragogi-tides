@@ -247,6 +247,8 @@
         }
         .share-btn:hover { background: rgba(33,150,243,0.3); border-color: rgba(33,150,243,0.5); }
         .share-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .share-btn-whatsapp { background: rgba(37,211,102,0.15) !important; border-color: rgba(37,211,102,0.4) !important; }
+        .share-btn-whatsapp:hover { background: rgba(37,211,102,0.3) !important; border-color: rgba(37,211,102,0.6) !important; }
         .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
 
         /* Range Picker Panel */
@@ -917,7 +919,9 @@
             footer { color: rgba(0,0,0,0.5) !important; }
             .tide-arrow { opacity: 1 !important; }
             .share-btn { background: #1976d2 !important; color: #fff !important; }
+            .share-btn-whatsapp { background: rgba(37,211,102,0.85) !important; color: #fff !important; border-color: rgba(37,211,102,1) !important; }
             .btn-row .share-btn { background: #1976d2 !important; color: #fff !important; }
+            .btn-row .share-btn-whatsapp { background: rgba(37,211,102,0.85) !important; color: #fff !important; border-color: rgba(37,211,102,1) !important; }
         `;
         let lightStyleEl = null;
 
@@ -1023,98 +1027,130 @@
             return html;
         }
 
-        async function shareView() {
+        const saveIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> ';
+        const whatsappIconSvg = '<svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> ';
+
+        async function generateShareBlob() {
             const el = document.getElementById('shareTarget');
-            if (!el) return;
-            const btn = document.querySelector('.share-btn');
-            btn.textContent = 'Gerando...';
-            btn.disabled = true;
-            try {
-                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
-                const sh = el.querySelector('.share-header');
-                if (sh) {
-                    const logoEl = sh.querySelector('.share-logo');
-                    if (config.logo) {
-                        logoEl.src = config.logo;
-                        logoEl.style.borderRadius = (config.logoShape || 'rect') === 'round' ? '50%' : '8px';
-                    } else {
-                        logoEl.style.display = 'none';
-                    }
-                    sh.querySelector('.share-title').textContent = config.cityName || 'Maragogi';
-                    const socialRight = sh.querySelector('.share-social');
-                    if (socialRight) {
-                        const sHtml = getSocialHtml(config);
-                        socialRight.innerHTML = sHtml;
-                        socialRight.style.display = sHtml ? 'flex' : 'none';
-                    }
+            if (!el) return null;
+            const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+            const sh = el.querySelector('.share-header');
+            if (sh) {
+                const logoEl = sh.querySelector('.share-logo');
+                if (config.logo) {
+                    logoEl.src = config.logo;
+                    logoEl.style.borderRadius = (config.logoShape || 'rect') === 'round' ? '50%' : '8px';
+                } else {
+                    logoEl.style.display = 'none';
                 }
-                el.classList.add('share-mode');
-                const canvas = await html2canvas(el, {
-                    backgroundColor: '#0c2340',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                el.classList.remove('share-mode');
-                if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
-                const link = document.createElement('a');
-                link.download = `tabua-mares-${config.cityName || 'maragogi'}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.92);
-                link.click();
-            } catch (e) {
-                el.classList.remove('share-mode');
-                alert('Erro ao gerar imagem');
+                sh.querySelector('.share-title').textContent = config.cityName || 'Maragogi';
+                const socialRight = sh.querySelector('.share-social');
+                if (socialRight) {
+                    const sHtml = getSocialHtml(config);
+                    socialRight.innerHTML = sHtml;
+                    socialRight.style.display = sHtml ? 'flex' : 'none';
+                }
             }
-            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar';
-            btn.disabled = false;
+            el.classList.add('share-mode');
+            const canvas = await html2canvas(el, {
+                backgroundColor: '#0c2340',
+                scale: 2,
+                useCORS: true,
+                logging: false
+            });
+            el.classList.remove('share-mode');
+            if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
+            const config2 = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+            const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+            return { blob, filename: `tabua-mares-${config2.cityName || 'maragogi'}.jpg` };
+        }
+
+        async function shareView() {
+            const btns = document.querySelectorAll('.btn-row .share-btn');
+            btns.forEach(b => { b.textContent = 'Gerando...'; b.disabled = true; });
+            try {
+                const { blob, filename } = await generateShareBlob();
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], filename, { type: 'image/jpeg' });
+                    const shareData = { files: [file], title: 'Tábua de Marés' };
+                    if (navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                    } else {
+                        downloadBlob(blob, filename);
+                    }
+                } else {
+                    downloadBlob(blob, filename);
+                }
+            } catch (e) {
+                if (e.name !== 'AbortError') alert('Erro ao gerar imagem');
+            }
+            btns.forEach(b => {
+                b.innerHTML = saveIconSvg + ' Salvar';
+                b.disabled = false;
+            });
+        }
+
+        async function shareWhatsApp() {
+            const btns = document.querySelectorAll('.btn-row .share-btn-whatsapp');
+            btns.forEach(b => { b.textContent = 'Gerando...'; b.disabled = true; });
+            try {
+                const { blob, filename } = await generateShareBlob();
+                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
+                const texto = `Confira a tábua de marés de ${config.cityName || 'Maragogi'} 🌊`;
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], filename, { type: 'image/jpeg' });
+                    const shareData = { files: [file], text: texto, title: 'Tábua de Marés' };
+                    if (navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                    } else {
+                        window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+                    }
+                } else {
+                    window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+                }
+            } catch (e) {
+                if (e.name !== 'AbortError') alert('Erro ao gerar imagem');
+            }
+            btns.forEach(b => {
+                b.innerHTML = whatsappIconSvg + ' WhatsApp';
+                b.disabled = false;
+            });
+        }
+
+        function downloadBlob(blob, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
         }
 
         async function exportPDF() {
             const el = document.getElementById('shareTarget');
             if (!el) return;
-            const btns = document.querySelectorAll('.share-btn');
-            btns.forEach(b => { b.textContent = 'Gerando PDF...'; b.disabled = true; });
+            const pdfBtns = document.querySelectorAll('.btn-row .share-btn');
+            pdfBtns.forEach(b => { b.textContent = 'Gerando PDF...'; b.disabled = true; });
             try {
-                const config = JSON.parse(localStorage.getItem('siteConfig') || '{}');
-                const sh = el.querySelector('.share-header');
-                if (sh) {
-                    const logoEl = sh.querySelector('.share-logo');
-                    if (config.logo) {
-                        logoEl.src = config.logo;
-                        logoEl.style.borderRadius = (config.logoShape || 'rect') === 'round' ? '50%' : '8px';
-                    } else {
-                        logoEl.style.display = 'none';
-                    }
-                    sh.querySelector('.share-title').textContent = config.cityName || 'Maragogi';
-                    const socialRight = sh.querySelector('.share-social');
-                    if (socialRight) {
-                        const sHtml = getSocialHtml(config);
-                        socialRight.innerHTML = sHtml;
-                        socialRight.style.display = sHtml ? 'flex' : 'none';
-                    }
-                }
-                el.classList.add('share-mode');
-                const canvas = await html2canvas(el, {
-                    backgroundColor: '#0c2340',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                el.classList.remove('share-mode');
-                if (sh && !config.logo) sh.querySelector('.share-logo').style.display = '';
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const { blob, filename } = await generateShareBlob();
+                const imgUrl = URL.createObjectURL(blob);
+                const img = new Image();
+                img.src = imgUrl;
+                await new Promise(r => img.onload = r);
+                const cvs = document.createElement('canvas');
+                cvs.width = img.width; cvs.height = img.height;
+                cvs.getContext('2d').drawImage(img, 0, 0);
+                const pdfData = cvs.toDataURL('image/jpeg', 0.95);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfW = pdf.internal.pageSize.getWidth();
-                const pdfH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-                pdf.save(`tabua-mares-${config.cityName || 'maragogi'}.pdf`);
+                const pdfH = (cvs.height * pdfW) / cvs.width;
+                pdf.addImage(pdfData, 'JPEG', 0, 0, pdfW, pdfH);
+                pdf.save(filename.replace('.jpg', '.pdf'));
+                URL.revokeObjectURL(imgUrl);
             } catch (e) {
-                el.classList.remove('share-mode');
                 alert('Erro ao gerar PDF');
             }
-            btns.forEach(b => {
-                b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar';
+            pdfBtns.forEach(b => {
                 b.disabled = false;
             });
         }
@@ -1590,7 +1626,8 @@
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
-                    <button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button>
+                    <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
+                    <button class="share-btn share-btn-whatsapp" onclick="shareWhatsApp()">${whatsappIconSvg} WhatsApp</button>
                     <button class="share-btn" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF</button>
                 </div>`;
         }
@@ -1655,7 +1692,10 @@
                     <div class="week-grid">${blocks}</div>
                     ${getLegendHtml()}
                 </div>
-                <div style="text-align:center"><button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button></div>`;
+                <div class="btn-row">
+                    <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
+                    <button class="share-btn share-btn-whatsapp" onclick="shareWhatsApp()">${whatsappIconSvg} WhatsApp</button>
+                </div>`;
         }
 
         // ===== MONTH VIEW (calendário) =====
@@ -1729,7 +1769,10 @@
                     <div class="month-grid">${cells}</div>
                     ${getLegendHtml()}
                 </div>
-                <div style="text-align:center"><button class="share-btn" onclick="shareView()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Compartilhar</button></div>`;
+                <div class="btn-row">
+                    <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
+                    <button class="share-btn share-btn-whatsapp" onclick="shareWhatsApp()">${whatsappIconSvg} WhatsApp</button>
+                </div>`;
         }
 
         function goToDay(y, m, d) {
