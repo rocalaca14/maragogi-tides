@@ -10,15 +10,15 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz4KICA8cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPScjMDA2MDZDJy8+CiAgPHRleHQgeD0nMjU2JyB5PScyMDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nMTIwJyBmaWxsPScjMDBERkMzJyBmb250LWZhbWlseT0nQXJpYWwnPn48L3RleHQ+CiAgPHRleHQgeD0nMjU2JyB5PSczNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9JyNmZmYnIGZvbnQtZmFtaWx5PSdBcmlhbCcgZm9udC13ZWlnaHQ9J2JvbGQnPk1BUkVTPC90ZXh0PgogIDx0ZXh0IHg9JzI1NicgeT0nNDEwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzM2JyBmaWxsPScjMDBERkMzJyBmb250LWZhbWlseT0nQXJpYWwnPk1hcmFnb2dpPC90ZXh0Pgo8L3N2Zz4=",
+            "src": "icon.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
-            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJz4KICA8cmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPScjMDA2MDZDJy8+CiAgPHRleHQgeD0nMjU2JyB5PScyMDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nMTIwJyBmaWxsPScjMDBERkMzJyBmb250LWZhbWlseT0nQXJpYWwnPn48L3RleHQ+CiAgPHRleHQgeD0nMjU2JyB5PSczNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtc2l6ZT0nNjAnIGZpbGw9JyNmZmYnIGZvbnQtZmFtaWx5PSdBcmlhbCcgZm9udC13ZWlnaHQ9J2JvbGQnPk1BUkVTPC90ZXh0PgogIDx0ZXh0IHg9JzI1NicgeT0nNDEwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzM2JyBmaWxsPScjMDBERkMzJyBmb250LWZhbWlseT0nQXJpYWwnPk1hcmFnb2dpPC90ZXh0Pgo8L3N2Zz4=",
+            "src": "icon.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any maskable"
         }
     ]
