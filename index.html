@@ -1346,6 +1346,17 @@
             return `<span class="tide-arrow ${arrow.colorClass}">${ch}</span>`;
         }
 
+        const ARROW_COLORS = { red: '#ff5252', green: '#4caf50', orange: '#ff9800', neutral: '#9e9e9e' };
+
+        function getDayTideState(hours, meanLevel) {
+            const counts = { red: 0, green: 0, orange: 0, neutral: 0 };
+            hours.forEach(h => {
+                const arrow = getArrowInfo(h.level >= meanLevel, h.level, h.hour);
+                counts[arrow.colorClass]++;
+            });
+            return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+        }
+
         function generateTideChart(hours, meanLevel) {
             if (!hours || hours.length < 2) return '';
             const w = 320, h = 100, padL = 30, padR = 10, padT = 10, padB = 20;
@@ -1806,6 +1817,7 @@
                 const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
 
                 let tides = '';
+                let borderStyle = '';
                 if (dayData) {
                     dayData.hours.forEach(h => {
                         const isHigh = h.level >= meanLevel;
@@ -1814,9 +1826,11 @@
                             <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
                         </div>`;
                     });
+                    const dominant = getDayTideState(dayData.hours, meanLevel);
+                    borderStyle = ` style="border-top: 3px solid ${ARROW_COLORS[dominant]}; border-bottom: 3px solid ${ARROW_COLORS[dominant]}"`;
                 }
 
-                cells += `<div class="month-cell${isToday ? ' is-today' : ''}" onclick="goToDay(${year},${month},${d})">
+                cells += `<div class="month-cell${isToday ? ' is-today' : ''}"${borderStyle} onclick="goToDay(${year},${month},${d})">
                     <div class="mc-head">${d}</div>
                     <div class="mc-body">${tides}</div>
                 </div>`;
