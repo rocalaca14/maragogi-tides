@@ -1355,21 +1355,24 @@
 
         function getArrowInfo(currentLevel, prevLevel, nextLevel) {
             let rising = null;
-            if (prevLevel !== null && currentLevel > prevLevel) rising = true;
-            else if (nextLevel !== null && currentLevel < nextLevel) rising = true;
-            if (prevLevel !== null && currentLevel < prevLevel) rising = false;
-            else if (nextLevel !== null && currentLevel > nextLevel) rising = false;
+            if (prevLevel !== null) {
+                rising = currentLevel > prevLevel;
+            } else if (nextLevel !== null) {
+                rising = currentLevel < nextLevel;
+            }
 
             const symbol = (rising === false) ? 'down' : 'up';
             const colorClass = calculateTideColor(currentLevel, prevLevel);
             return { symbol, colorClass };
         }
 
-        function getArrowForRow(hours, i) {
-            const prev = i > 0 ? hours[i - 1].level : null;
+        function getArrowForRow(hours, i, prevDayHours) {
+            let prev = i > 0 ? hours[i - 1].level : null;
+            if (i === 0 && prevDayHours && prevDayHours.length > 0) {
+                prev = prevDayHours[prevDayHours.length - 1].level;
+            }
             const next = i < hours.length - 1 ? hours[i + 1].level : null;
-            const result = getArrowInfo(hours[i].level, prev, next);
-            return result;
+            return getArrowInfo(hours[i].level, prev, next);
         }
 
         function arrowHtml(arrow) {
@@ -1379,10 +1382,10 @@
 
         const ARROW_COLORS = { red: '#FF0000', green: '#00AA00', orange: '#FF8800', neutral: '#999999' };
 
-        function getDayTideState(hours) {
+        function getDayTideState(hours, prevDayHours) {
             const counts = { red: 0, green: 0, orange: 0, neutral: 0 };
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i);
+                const arrow = getArrowForRow(hours, i, prevDayHours);
                 counts[arrow.colorClass]++;
             });
             return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
@@ -1841,13 +1844,14 @@
                 let tides = '';
                 let borderStyle = '';
                 if (dayData) {
+                    const prevDayHours = d > 1 && harbor.months[0].days[d - 2] ? harbor.months[0].days[d - 2].hours : null;
                     dayData.hours.forEach((h, i) => {
-                        const arrow = getArrowForRow(dayData.hours, i);
+                        const arrow = getArrowForRow(dayData.hours, i, prevDayHours);
                         tides += `<div class="mc-tide-row">
                             <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
                         </div>`;
                     });
-                    const dominant = getDayTideState(dayData.hours);
+                    const dominant = getDayTideState(dayData.hours, prevDayHours);
                     borderStyle = ` style="border-top: 3px solid ${ARROW_COLORS[dominant]}; border-bottom: 3px solid ${ARROW_COLORS[dominant]}"`;
                 }
 
