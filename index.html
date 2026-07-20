@@ -382,6 +382,7 @@
         .share-mode .week-block { padding: 6px 4px; overflow: hidden; }
         .share-mode .week-block .wb-tide { font-size: 0.6em; }
         .share-mode .week-block .wb-date { font-size: 1.1em; }
+        .share-mode .week-block .wb-tides { gap: 0; }
         .share-mode .month-grid { gap: 2px; overflow: hidden; }
         .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
         .share-mode .month-cell .mc-head { font-size: 0.45em; }
@@ -430,25 +431,27 @@
 
         /* ===== WEEK VIEW (grid de blocos) ===== */
         .week-grid {
-            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 1.5vw, 10px);
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 22vw, 130px), 1fr)); gap: clamp(6px, 1.5vw, 10px);
         }
         .week-block {
             background: #FFFFFF; border: 1px solid #B7E5E2;
             border-radius: 12px; padding: clamp(6px, 1.5vw, 10px) clamp(4px, 1vw, 8px); text-align: center;
-            color: #102A30; aspect-ratio: 1; display: flex; flex-direction: column;
-            justify-content: center; overflow: hidden;
+            color: #102A30; display: flex; flex-direction: column;
+            overflow: hidden;
         }
         .week-block.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
         .week-block .wb-day { font-size: clamp(0.5em, 1.5vw, 0.7em); text-transform: uppercase; color: #527178; letter-spacing: 1px; }
         .week-block .wb-date { font-size: clamp(0.9em, 3vw, 1.4em); font-weight: 800; margin: 2px 0 clamp(3px, 0.8vw, 6px); }
+        .week-block .wb-tides { display: flex; flex-direction: column; gap: 1px; flex: 1; justify-content: center; }
         .week-block .wb-tide {
             display: flex; align-items: center; justify-content: center; gap: 3px;
-            font-size: clamp(0.5em, 1.4vw, 0.75em); margin: 1px 0; opacity: 0.8;
+            font-size: clamp(0.5em, 1.4vw, 0.75em); opacity: 0.8;
         }
-        .week-block .wb-tide .wb-time { min-width: 0; text-align: right; }
+        .week-block .wb-tide .wb-time { min-width: 0; text-align: right; opacity: 0.6; }
+        .week-block .wb-tide .wb-sep { opacity: 0.3; }
         .week-block .wb-tide .wb-level { font-weight: 600; min-width: 0; text-align: right; }
-        .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; width: 1.1em; text-align: center; }
-        .week-block .wb-tide .wb-arrow svg { width: 1em; height: 1.2em; }
+        .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; justify-content: center; width: 1em; flex-shrink: 0; line-height: 1; }
+        .week-block .wb-tide .wb-arrow svg { height: 0.85em; width: auto; vertical-align: middle; }
 
         /* ===== MONTH VIEW (calendário) ===== */
         .month-nav {
@@ -541,7 +544,6 @@
 
         @media (max-width: 420px) {
             .week-grid { grid-template-columns: repeat(2, 1fr); }
-            .week-block { aspect-ratio: auto; min-height: 120px; }
         }
     </style>
 </head>
@@ -1748,8 +1750,8 @@
                     const isHigh = h.level >= meanLevel;
                     const arrow = getArrowInfo(isHigh, h.level, h.hour);
                     tides += `<div class="wb-tide">
-                        <span class="wb-time" style="opacity:0.6">${h.hour.substring(0,5)}</span>
-                        <span style="opacity:0.3">-</span>
+                        <span class="wb-time">${h.hour.substring(0,5)}</span>
+                        <span class="wb-sep">-</span>
                         <span class="wb-level">${h.level.toFixed(2)}</span>
                         <span class="wb-arrow">${arrowHtml(arrow)}</span>
                     </div>`;
@@ -1758,7 +1760,7 @@
                 blocks += `<div class="week-block${isToday ? ' is-today' : ''}">
                     <div class="wb-day">${dayName}</div>
                     <div class="wb-date">${dayNum}</div>
-                    ${tides}
+                    <div class="wb-tides">${tides}</div>
                 </div>`;
             });
 
