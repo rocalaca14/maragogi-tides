@@ -399,7 +399,8 @@
         .share-legend .legend-title { font-weight: 700; margin-bottom: 4px; color: #102A30; }
         .share-legend .legend-item { display: flex; align-items: center; gap: 6px; color: #102A30; }
         .share-legend .legend-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
-        .tide-arrow { font-size: clamp(1em, 2.8vw, 1.3em); font-weight: 900; line-height: 1; }
+        .tide-arrow { font-size: clamp(1em, 2.8vw, 1.3em); font-weight: 900; line-height: 1; display: inline-flex; align-items: center; }
+        .tide-arrow svg { width: 0.9em; height: 0.9em; }
         .tide-arrow.red { color: #ff5252; }
         .tide-arrow.red svg { fill: #ff5252; }
         .tide-arrow.orange { color: #ff9800; }
@@ -451,7 +452,7 @@
         .week-block .wb-tide .wb-sep { opacity: 0.3; }
         .week-block .wb-tide .wb-level { font-weight: 600; min-width: 0; text-align: right; }
         .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; justify-content: center; width: 1em; flex-shrink: 0; line-height: 1; }
-        .week-block .wb-tide .wb-arrow svg { height: 0.85em; width: auto; vertical-align: middle; }
+        .week-block .wb-tide .wb-arrow svg { width: 0.9em; height: 0.9em; }
 
         /* ===== MONTH VIEW (calendário) ===== */
         .month-nav {
@@ -526,10 +527,10 @@
 
         .month-cell .mc-tide-row .mc-arrow {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 1em; flex-shrink: 0; line-height: 0;
+            flex-shrink: 0;
         }
         .month-cell .mc-tide-row .mc-arrow svg {
-            height: 0.85em; width: auto;
+            display: block; width: 0.9em; height: 0.9em;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -1357,9 +1358,9 @@
         function arrowHtml(arrow, size) {
             const cls = `tide-arrow ${arrow.colorClass}`;
             if (arrow.symbol === 'up') {
-                return `<span class="${cls}"><svg width="1em" height="1.2em" viewBox="0 0 14 18" fill="currentColor"><path d="M7 0L7 14L3 10L0 13L7 18L14 13L11 10L7 14Z"/></svg></span>`;
+                return `<span class="${cls}"><svg viewBox="0 0 14 18" fill="currentColor"><path d="M7 0L7 14L3 10L0 13L7 18L14 13L11 10L7 14Z"/></svg></span>`;
             }
-            return `<span class="${cls}"><svg width="1em" height="1.2em" viewBox="0 0 14 18" fill="currentColor"><path d="M7 18L7 4L3 8L0 5L7 0L14 5L11 8L7 4Z"/></svg></span>`;
+            return `<span class="${cls}"><svg viewBox="0 0 14 18" fill="currentColor"><path d="M7 18L7 4L3 8L0 5L7 0L14 5L11 8L7 4Z"/></svg></span>`;
         }
 
         function generateTideChart(hours, meanLevel) {
