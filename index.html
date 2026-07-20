@@ -424,6 +424,9 @@
             border-radius: 0 8px 8px 0; padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); margin-top: clamp(8px, 2vw, 12px);
             font-size: clamp(0.65em, 1.8vw, 0.8em); color: #527178;
         }
+        .dynamic-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: clamp(8px, 2vw, 12px); padding: clamp(6px, 1.5vw, 8px) 0; }
+        .dynamic-legend .dl-item { display: inline-flex; align-items: center; gap: 4px; font-size: clamp(0.6em, 1.6vw, 0.75em); color: #527178; }
+        .dynamic-legend .dl-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
 
         /* ===== WEEK VIEW (grid de blocos) ===== */
         .week-grid {
@@ -1051,6 +1054,26 @@
         }
 
         // ===== SHARE LEGEND =====
+        const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa', orange: 'Baixa transição', neutral: 'Intermediária' };
+        const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down', neutral: 'up' };
+
+        function buildDynamicLegend(hours, meanLevel) {
+            const seen = new Set();
+            const items = [];
+            hours.forEach(h => {
+                const arrow = getArrowInfo(h.level >= meanLevel, h.level, h.hour);
+                const key = arrow.colorClass;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    items.push({ colorClass: key, symbol: LEGEND_SYMBOLS[key] || arrow.symbol, label: LEGEND_LABELS[key] });
+                }
+            });
+            if (!items.length) return '';
+            return `<div class="dynamic-legend">${items.map(it =>
+                `<div class="dl-item"><span class="dl-arrow">${arrowHtml({ symbol: it.symbol, colorClass: it.colorClass })}</span> ${it.label}</div>`
+            ).join('')}</div>`;
+        }
+
         function getLegendHtml() {
             const upRed = arrowHtml({ symbol: 'up', colorClass: 'red' });
             const downGreen = arrowHtml({ symbol: 'down', colorClass: 'green' });
@@ -1714,9 +1737,7 @@
                     <div class="tide-chart-container">
                         ${generateTideChart(hours, meanLevel)}
                     </div>
-                    <div class="info-box">
-                        ▲ Alta (vermelho) | ▼ Baixa (verde) | ▼ Baixa transição (laranja) | ▲ Intermediária (cinza)
-                    </div>
+                    ${buildDynamicLegend(hours, meanLevel)}
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
@@ -1732,11 +1753,13 @@
             const harbor = data.data[0];
             const meanLevel = harbor.mean_level;
             let blocks = '';
+            const allHours = [];
 
             dates.forEach((date, i) => {
                 const dayData = harbor.months[0].days[i];
                 if (!dayData) return;
                 const hours = dayData.hours;
+                allHours.push(...hours);
                 const isToday = date.toDateString() === today.toDateString();
                 const dayName = DAY_NAMES[date.getDay()];
                 const dayNum = date.getDate();
@@ -1784,7 +1807,7 @@
                         </div>
                     </div>
                     <div class="week-grid">${blocks}</div>
-                    ${getLegendHtml()}
+                    ${buildDynamicLegend(allHours, meanLevel)}
                 </div>
                 <div class="btn-row">
                     <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
