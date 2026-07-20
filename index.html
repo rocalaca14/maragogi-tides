@@ -1051,16 +1051,16 @@
 
         // ===== SHARE LEGEND =====
         function getLegendHtml() {
-            const upArrow = arrowHtml({ symbol: 'up', colorClass: 'red' });
+            const upRed = arrowHtml({ symbol: 'up', colorClass: 'red' });
             const downGreen = arrowHtml({ symbol: 'down', colorClass: 'green' });
             const downOrange = arrowHtml({ symbol: 'down', colorClass: 'orange' });
-            const downGray = arrowHtml({ symbol: 'down', colorClass: 'neutral' });
+            const upNeutral = arrowHtml({ symbol: 'up', colorClass: 'neutral' });
             return `<div class="share-legend">
                 <div class="legend-title">Legenda</div>
-                <div class="legend-item"><span class="legend-arrow">${upArrow}</span> Maré alta</div>
-                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa (ok: 6h30-17h, abaixo 0.7m)</div>
-                <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa alta ou após 17h</div>
-                <div class="legend-item"><span class="legend-arrow">${downGray}</span> Maré baixa (fora do horário ideal)</div>
+                <div class="legend-item"><span class="legend-arrow">${upRed}</span> Maré alta</div>
+                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa</div>
+                <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa em transição</div>
+                <div class="legend-item"><span class="legend-arrow">${upNeutral}</span> Maré intermediária</div>
             </div>`;
         }
 
@@ -1703,7 +1703,7 @@
                         ${generateTideChart(hours, meanLevel)}
                     </div>
                     <div class="info-box">
-                        ▲ Alta (vermelho) | ▼ Baixa ok (verde 6h30-17h &lt;0.7m) | ▼ Baixa (cinza) | ▼ Alta baixa/pós 17h (laranja)
+                        ▲ Alta (vermelho) | ▼ Baixa (verde) | ▼ Baixa transição (laranja) | ▲ Intermediária (cinza)
                     </div>
                     ${getLegendHtml()}
                 </div>
