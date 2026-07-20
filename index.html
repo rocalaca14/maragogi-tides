@@ -382,8 +382,8 @@
         .share-mode .week-block .wb-tides { gap: 0; }
         .share-mode .month-grid { gap: 2px; overflow: hidden; }
         .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
-        .share-mode .month-cell .mc-head { font-size: 0.45em; }
-        .share-mode .month-cell .mc-tide-row { font-size: 0.3em; }
+        .share-mode .month-cell .mc-head { font-size: 22cqw; }
+        .share-mode .month-cell .mc-tide-row { font-size: 13cqw; }
         .share-mode .month-cell .mc-tide-row .mc-time { }
         .share-mode .month-cell .mc-tide-row .mc-level { }
         .share-mode .month-weekdays span { font-size: 0.5em; }
@@ -473,7 +473,7 @@
         }
 
         .month-cell {
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1 / 1; container-type: inline-size;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 4px; border-radius: 8px;
             background-color: #fafafa;
@@ -487,18 +487,18 @@
         .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
 
         .month-cell .mc-head {
-            font-size: 0.28em; font-weight: 700; margin: 0; line-height: 1;
+            font-size: 22cqw; font-weight: 700; margin: 0; line-height: 1;
             text-align: center; flex-shrink: 0; color: #102A30;
         }
 
         .month-cell .mc-body {
             flex: 1; display: flex; flex-direction: column; justify-content: center;
-            gap: 0; min-height: 0;
+            gap: 0; min-height: 0; overflow: hidden;
         }
 
         .month-cell .mc-tide-row {
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.16em; line-height: 1.1;
+            font-size: 13cqw; line-height: 1.15;
             white-space: nowrap; padding: 0; margin: 0;
         }
 
@@ -1842,6 +1842,7 @@
                 let borderStyle = '';
                 if (dayData) {
                     dayData.hours.forEach((h, i) => {
+                        if (i % 2 !== 0) return;
                         const arrow = getArrowForRow(dayData.hours, i);
                         tides += `<div class="mc-tide-row">
                             <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
