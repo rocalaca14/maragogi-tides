@@ -395,14 +395,22 @@
         .share-legend .legend-item { display: flex; align-items: center; gap: 6px; color: #102A30; }
         .share-legend .legend-arrow { font-weight: 900; font-size: 1.1em; width: 16px; text-align: center; }
         .la-red { color: #ff4444; }
+        .la-red svg { fill: #ff4444; }
         .la-green { color: #4caf50; }
+        .la-green svg { fill: #4caf50; }
         .la-orange { color: #ff9800; }
+        .la-orange svg { fill: #ff9800; }
         .la-gray { color: #888; }
+        .la-gray svg { fill: #888; }
         .tide-arrow { font-size: 1.3em; font-weight: 900; line-height: 1; }
         .tide-arrow.red { color: #ff5252; }
+        .tide-arrow.red svg { fill: #ff5252; }
         .tide-arrow.orange { color: #ff9800; }
+        .tide-arrow.orange svg { fill: #ff9800; }
         .tide-arrow.green { color: #4caf50; }
+        .tide-arrow.green svg { fill: #4caf50; }
         .tide-arrow.neutral { color: #9e9e9e; }
+        .tide-arrow.neutral svg { fill: #9e9e9e; }
 
         .level-value { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
         .level-m { font-size: 1em; color: #102A30; }
@@ -430,18 +438,19 @@
         .week-block {
             background: #FFFFFF; border: 1px solid #B7E5E2;
             border-radius: 12px; padding: 10px 8px; text-align: center;
-            color: #102A30;
+            color: #102A30; aspect-ratio: 1; display: flex; flex-direction: column;
+            justify-content: center; overflow: hidden;
         }
         .week-block.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
         .week-block .wb-day { font-size: 0.65em; text-transform: uppercase; color: #527178; letter-spacing: 1px; }
         .week-block .wb-date { font-size: 1.3em; font-weight: 800; margin: 2px 0 6px; }
         .week-block .wb-tide {
             display: flex; align-items: center; justify-content: center; gap: 3px;
-            font-size: 0.7em; margin: 2px 0; opacity: 0.8;
+            font-size: 0.7em; margin: 1px 0; opacity: 0.8;
         }
         .week-block .wb-tide .wb-time { min-width: 30px; text-align: right; }
         .week-block .wb-tide .wb-level { font-weight: 600; min-width: 34px; text-align: right; }
-        .week-block .wb-tide .wb-arrow { font-weight: 900; font-size: 0.9em; width: 14px; text-align: center; }
+        .week-block .wb-tide .wb-arrow { font-weight: 900; font-size: 1em; width: 16px; text-align: center; }
 
         /* ===== MONTH VIEW (calendário) ===== */
         .month-nav {
@@ -470,16 +479,17 @@
 
         .month-cell {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            border-radius: 8px; padding: 3px 2px; color: #102A30;
+            border-radius: 8px; padding: 4px 3px; color: #102A30;
             display: flex; flex-direction: column;
             cursor: pointer; transition: background 0.2s; overflow: hidden;
+            aspect-ratio: 1;
         }
         .month-cell:hover { background: #F4FAFA; border-color: #00DFC3; }
         .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
         .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
 
         .month-cell .mc-head {
-            text-align: center; font-size: 0.5em; font-weight: 700;
+            text-align: center; font-size: 0.55em; font-weight: 700;
             padding-bottom: 1px; margin-bottom: 1px; position: relative;
             flex-shrink: 0; color: #102A30;
         }
@@ -496,8 +506,8 @@
         }
 
         .month-cell .mc-tide-row {
-            display: flex; align-items: center; font-size: 0.36em; line-height: 1;
-            white-space: nowrap; padding: 0; gap: 0;
+            display: flex; align-items: center; font-size: 0.38em; line-height: 1.2;
+            white-space: nowrap; padding: 0; gap: 1px;
         }
 
         .month-cell .mc-tide-row .mc-time {
@@ -509,7 +519,7 @@
         }
 
         .month-cell .mc-tide-row .mc-arrow {
-            font-weight: 900; font-size: 0.8em; width: 6px;
+            font-weight: 900; font-size: 0.9em; width: 8px;
             text-align: center; flex-shrink: 0;
         }
 
@@ -526,9 +536,10 @@
 
         @media (max-width: 420px) {
             .week-grid { grid-template-columns: repeat(2, 1fr); }
-            .month-cell { padding: 3px 1px; }
-            .month-cell .mc-head { font-size: 0.48em; }
-            .month-cell .mc-tide-row { font-size: 0.38em; }
+            .week-block { aspect-ratio: auto; min-height: 120px; }
+            .month-cell { padding: 3px 2px; aspect-ratio: 1; }
+            .month-cell .mc-head { font-size: 0.5em; }
+            .month-cell .mc-tide-row { font-size: 0.36em; }
         }
     </style>
 </head>
@@ -877,35 +888,42 @@
 
         // ===== THEME TOGGLE (Dark mode via JS injection) =====
         const DARK_CSS = `
-            * { color: #FFFFFF !important; }
-            .tide-arrow.red { color: #ff5252 !important; }
-            .tide-arrow.orange { color: #ff9800 !important; }
-            .tide-arrow.green { color: #4caf50 !important; }
-            .tide-arrow.neutral { color: #9e9e9e !important; }
-            .la-red { color: #ff4444 !important; }
-            .la-green { color: #4caf50 !important; }
-            .la-orange { color: #ff9800 !important; }
-            .la-gray { color: #888 !important; }
-            body { background: #17343A !important; color: #FFFFFF !important; }
+            body, header h1, header p, .card, .controls button, .day-nav-btn,
+            .current-status, .tide-table thead th, .tide-table tbody td,
+            .level-m, .level-ft, .hamburger, .theme-toggle, .social-link, .social-contact,
+            .astro-line .astro-label, .astro-line .astro-val, .info-box,
+            .month-nav .month-title, .month-nav button, .month-weekdays span,
+            .month-cell, .month-cell .mc-head, .week-block, .week-block .wb-day,
+            .week-block .wb-date, .week-block .wb-tide, .share-legend,
+            .share-legend .legend-title, .share-legend .legend-item,
+            .panel, .panel h3, .panel-field label, .panel-field input, .panel-field select,
+            .range-fields label, .range-fields input, footer { color: #FFFFFF !important; }
+            .tide-arrow.red, .tide-arrow.red svg { color: #ff5252 !important; fill: #ff5252 !important; }
+            .tide-arrow.orange, .tide-arrow.orange svg { color: #ff9800 !important; fill: #ff9800 !important; }
+            .tide-arrow.green, .tide-arrow.green svg { color: #4caf50 !important; fill: #4caf50 !important; }
+            .tide-arrow.neutral, .tide-arrow.neutral svg { color: #9e9e9e !important; fill: #9e9e9e !important; }
+            .la-red, .la-red svg { color: #ff4444 !important; fill: #ff4444 !important; }
+            .la-green, .la-green svg { color: #4caf50 !important; fill: #4caf50 !important; }
+            .la-orange, .la-orange svg { color: #ff9800 !important; fill: #ff9800 !important; }
+            .la-gray, .la-gray svg { color: #888 !important; fill: #888 !important; }
+            body { background: #17343A !important; }
             header { background: transparent !important; }
-            header h1 { color: #FFFFFF !important; }
-            header p { color: rgba(255,255,255,.75) !important; }
             .card { background: #21464D !important; border: 1px solid rgba(255,255,255,.12) !important; box-shadow: 0 6px 24px rgba(0,0,0,.3) !important; }
-            .controls button { background: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border: 1px solid rgba(255,255,255,.15) !important; }
+            .controls button { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
             .controls button.active { background: #00DFC3 !important; color: #17343A !important; border-color: #00DFC3 !important; }
-            input[type="date"] { background: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border: 1px solid rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"] { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
             input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) !important; }
-            input[type="date"]::-webkit-datetime-edit { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
-            input[type="date"]::-webkit-datetime-edit-fields-wrapper { color: #FFFFFF !important; }
-            input[type="date"]::-webkit-datetime-edit-text { color: #FFFFFF !important; }
-            input[type="date"]::-webkit-datetime-edit-month-field { color: #FFFFFF !important; }
-            input[type="date"]::-webkit-datetime-edit-day-field { color: #FFFFFF !important; }
-            input[type="date"]::-webkit-datetime-edit-year-field { color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit { -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit-fields-wrapper { -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit-text { -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit-month-field { -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit-day-field { -webkit-text-fill-color: #FFFFFF !important; }
+            input[type="date"]::-webkit-datetime-edit-year-field { -webkit-text-fill-color: #FFFFFF !important; }
             input[type="date"]::placeholder { color: rgba(255,255,255,.4) !important; }
             .tide-table thead th { color: rgba(255,255,255,.5) !important; }
             .tide-table tbody tr { background: rgba(255,255,255,.04) !important; }
             .tide-table tbody tr:hover { background: rgba(255,255,255,.08) !important; }
-            .day-nav-btn { color: #FFFFFF !important; background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
+            .day-nav-btn { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
             .day-nav-btn:hover { background: rgba(255,255,255,.15) !important; }
             .current-status { background: rgba(255,255,255,.06) !important; }
             .info-box { background: rgba(0,223,195,.08) !important; border-left-color: #00DFC3 !important; color: rgba(255,255,255,.7) !important; }
@@ -921,29 +939,26 @@
             .sidebar { background: #00606C !important; }
             .sidebar li { color: #FFFFFF !important; }
             .sidebar li:hover { background: rgba(255,255,255,.08) !important; }
-            .panel { background: #21464D !important; color: #FFFFFF !important; border-color: rgba(255,255,255,.12) !important; }
-            .panel h3 { color: #FFFFFF !important; border-bottom-color: rgba(255,255,255,.12) !important; }
+            .panel { background: #21464D !important; border-color: rgba(255,255,255,.12) !important; }
+            .panel h3 { border-bottom-color: rgba(255,255,255,.12) !important; }
             .panel-field label { color: rgba(255,255,255,.6) !important; }
-            .panel-field input[type="text"], .panel-field input[type="date"] { background: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border-color: rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
+            .panel-field input[type="text"], .panel-field input[type="date"] { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
             .panel-field input[type="text"]:focus, .panel-field input[type="date"]:focus { border-color: #00DFC3 !important; box-shadow: 0 0 0 4px rgba(0,223,195,.18) !important; }
-            .panel-field select { background-color: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border-color: rgba(255,255,255,.15) !important; }
+            .panel-field select { background-color: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
             .panel-field select:focus { border-color: #00DFC3 !important; box-shadow: 0 0 0 4px rgba(0,223,195,.18) !important; }
-            .month-nav button { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; color: #FFFFFF !important; }
-            .month-nav .month-title { color: #FFFFFF !important; }
-            .month-weekdays span { color: rgba(255,255,255,.45) !important; }
-            .month-cell { background: rgba(255,255,255,.06) !important; border: 1px solid rgba(255,255,255,.1) !important; color: #FFFFFF !important; }
+            .month-nav button { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
+            .month-cell { background: rgba(255,255,255,.06) !important; border: 1px solid rgba(255,255,255,.1) !important; }
             .month-cell:hover { background: rgba(255,255,255,.1) !important; border-color: #00DFC3 !important; }
             .month-cell.is-today { border-color: #00DFC3 !important; background: rgba(0,223,195,.12) !important; }
             .month-cell.empty { background: transparent !important; border-color: transparent !important; }
-            .month-cell .mc-head { color: #FFFFFF !important; }
             .month-cell .mc-head::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent) !important; }
             .month-cell .mc-tide { color: rgba(255,255,255,.6) !important; }
             .range-fields label { color: rgba(255,255,255,.6) !important; }
-            .range-fields input[type="date"] { background: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border-color: rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
-            .panel-btn-cancel { background: rgba(255,255,255,.08) !important; color: #FFFFFF !important; border-color: rgba(255,255,255,.15) !important; }
+            .range-fields input[type="date"] { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
+            .panel-btn-cancel { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
             .panel-btn-save { background: #00DFC3 !important; color: #17343A !important; }
             .panel-btn-save:hover { background: #00BFA8 !important; }
-            .week-block { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.1) !important; color: #FFFFFF !important; }
+            .week-block { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.1) !important; }
             .week-block.is-today { border-color: #00DFC3 !important; background: rgba(0,223,195,.08) !important; }
             .share-header-right .share-social-item { color: rgba(255,255,255,.7) !important; }
             .share-header { border-bottom-color: rgba(255,255,255,.1) !important; }
@@ -958,8 +973,8 @@
             .btn-row .share-btn-whatsapp { background: rgba(37,211,102,.85) !important; color: #fff !important; border-color: rgba(37,211,102,1) !important; }
             .logo-upload-area { border-color: rgba(255,255,255,.15) !important; }
             .logo-upload-area:hover { border-color: #00DFC3 !important; }
-            .logo-zoom-controls button { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; color: #FFFFFF !important; }
-            .shape-option { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; color: #FFFFFF !important; }
+            .logo-zoom-controls button { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
+            .shape-option { background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important; }
             .logo-preview-box { border-color: rgba(255,255,255,.15) !important; background: rgba(0,0,0,.2) !important; }
             .btn-remove-logo { background: rgba(220,53,69,.3) !important; border-color: rgba(220,53,69,.5) !important; }
             .spinner { border-color: rgba(255,255,255,.15) !important; border-top-color: #00DFC3 !important; }
