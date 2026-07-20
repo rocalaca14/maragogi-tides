@@ -1357,10 +1357,8 @@
 
         function arrowHtml(arrow, size) {
             const cls = `tide-arrow ${arrow.colorClass}`;
-            if (arrow.symbol === 'up') {
-                return `<span class="${cls}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L12 17L7 12L3 16L12 23L21 16L17 12L12 17Z"/></svg></span>`;
-            }
-            return `<span class="${cls}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22L12 7L7 12L3 8L12 1L21 8L17 12L12 7Z"/></svg></span>`;
+            const rot = arrow.symbol === 'down' ? ' transform="rotate(180,12,12)"' : '';
+            return `<span class="${cls}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L12 17L7 12L3 16L12 23L21 16L17 12L12 17Z"${rot}/></svg></span>`;
         }
 
         function generateTideChart(hours, meanLevel) {
