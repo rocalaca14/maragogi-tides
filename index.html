@@ -21,6 +21,8 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { overflow-x: hidden; }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #F4FAFA;
@@ -45,12 +47,13 @@
 
         .container {
             position: relative; z-index: 1;
-            max-width: 520px; margin: 0 auto; padding: 16px;
+            max-width: min(520px, 92vw); margin: 0 auto; padding: clamp(10px, 3vw, 16px);
+            overflow-x: hidden;
         }
 
-        header { text-align: center; padding: 16px 0 8px; position: relative; background: transparent; }
-        header h1 { font-size: 2.1em; color: #102A30; text-shadow: none; }
-        header p { font-size: 0.95em; color: #527178; margin-top: 2px; }
+        header { text-align: center; padding: clamp(10px, 3vw, 16px) 0 8px; position: relative; background: transparent; }
+        header h1 { font-size: clamp(1.5em, 5vw, 2.1em); color: #102A30; text-shadow: none; }
+        header p { font-size: clamp(0.75em, 2.5vw, 0.95em); color: #527178; margin-top: 2px; }
 
         .header-content { display: flex; flex-direction: column; align-items: center; }
         #siteLogo { max-width: 80px; max-height: 80px; border-radius: 12px; margin-bottom: 6px; display: none; }
@@ -134,8 +137,8 @@
         .panel-overlay.open { display: flex; }
 
         .panel {
-            background: #FFFFFF; border-radius: 16px; padding: 24px;
-            width: 90%; max-width: 380px; max-height: 85vh; overflow-y: auto;
+            background: #FFFFFF; border-radius: 16px; padding: clamp(16px, 4vw, 24px);
+            width: 92%; max-width: 380px; max-height: 85vh; overflow-y: auto;
             box-shadow: 0 12px 40px rgba(0,0,0,0.15);
             border: 1px solid #B7E5E2;
         }
@@ -242,8 +245,8 @@
         /* Share Button */
         .share-btn {
             background: #00606C; border: 1px solid #00606C;
-            color: #FFFFFF; padding: 8px 14px; border-radius: 10px; cursor: pointer;
-            font-size: 0.85em; transition: all 0.2s; display: inline-flex;
+            color: #FFFFFF; padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 14px); border-radius: 10px; cursor: pointer;
+            font-size: clamp(0.75em, 2vw, 0.85em); transition: all 0.2s; display: inline-flex;
             align-items: center; gap: 5px; margin-top: 10px;
         }
         .share-btn:hover { background: #019391; border-color: #019391; }
@@ -266,13 +269,13 @@
 
         /* Controls */
         .controls {
-            display: flex; justify-content: center; gap: 8px; margin: 12px 0;
+            display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(6px, 1.5vw, 8px); margin: clamp(8px, 2vw, 12px) 0;
         }
         .controls button {
             background: #FFFFFF; color: #00606C;
             border: 1px solid #B7E5E2;
-            padding: 9px 18px; border-radius: 10px; cursor: pointer;
-            font-size: 0.9em; transition: all 0.3s; text-align: center;
+            padding: clamp(7px, 1.8vw, 9px) clamp(12px, 3.5vw, 18px); border-radius: 10px; cursor: pointer;
+            font-size: clamp(0.8em, 2.2vw, 0.9em); transition: all 0.3s; text-align: center;
         }
         .controls button:hover {
             background: #F4FAFA; transform: translateY(-2px);
@@ -282,9 +285,9 @@
         }
         .controls input[type="date"] {
             background: #FFFFFF; color: #102A30; border: 1px solid #B7E5E2;
-            padding: 9px 18px; border-radius: 10px; cursor: pointer;
-            font-size: 0.9em; transition: all 0.3s; text-align: center;
-            min-width: 130px;
+            padding: clamp(7px, 1.8vw, 9px) clamp(12px, 3.5vw, 18px); border-radius: 10px; cursor: pointer;
+            font-size: clamp(0.8em, 2.2vw, 0.9em); transition: all 0.3s; text-align: center;
+            min-width: clamp(110px, 35vw, 130px);
         }
         .controls input[type="date"]:focus { border-color: #00DFC3; box-shadow: 0 0 0 4px rgba(0,223,195,.18); }
         .controls input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
@@ -293,29 +296,30 @@
         .card {
             background: #FFFFFF;
             border: 1px solid #B7E5E2; border-radius: 16px;
-            padding: 20px; margin-bottom: 12px;
+            padding: clamp(14px, 3.5vw, 20px); margin-bottom: 12px;
             box-shadow: 0 6px 24px rgba(0,0,0,.08);
+            overflow: hidden;
         }
 
         /* ===== DAY VIEW ===== */
-        .day-header { text-align: center; margin-bottom: 16px; }
-        .day-header .day-name { font-size: 1.9em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        .day-header { text-align: center; margin-bottom: clamp(10px, 2.5vw, 16px); }
+        .day-header .day-name { font-size: clamp(1.4em, 4.5vw, 1.9em); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
         .day-header .day-date-row {
-            display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 4px;
+            display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 14px); margin-top: 4px;
         }
-        .day-header .day-date { font-size: 1.05em; color: #527178; }
+        .day-header .day-date { font-size: clamp(0.85em, 2.5vw, 1.05em); color: #527178; }
 
         .day-nav-btn {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            color: #00606C; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
-            font-size: 1.1em; display: flex; align-items: center; justify-content: center;
+            color: #00606C; width: clamp(28px, 8vw, 34px); height: clamp(28px, 8vw, 34px); border-radius: 50%; cursor: pointer;
+            font-size: clamp(0.9em, 2.5vw, 1.1em); display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; padding: 0;
         }
         .day-nav-btn:hover { background: #F4FAFA; transform: scale(1.1); }
 
         .astro-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-top: 8px; font-size: 0.65em; line-height: 1.4;
+            margin-top: 8px; font-size: clamp(0.55em, 1.6vw, 0.7em); line-height: 1.4;
         }
 
         .astro-side {
@@ -333,7 +337,7 @@
 
         .current-status {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-bottom: 14px; font-size: 0.9em; padding: 7px;
+            margin-bottom: clamp(10px, 2.5vw, 14px); font-size: clamp(0.78em, 2.2vw, 0.9em); padding: clamp(5px, 1.5vw, 7px);
             background: #F4FAFA; color: #102A30; border-radius: 10px;
         }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
@@ -344,19 +348,19 @@
         .tide-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
         .tide-table thead th {
             font-size: 0.65em; text-transform: uppercase; letter-spacing: 1px;
-            color: #527178; padding: 3px 10px; text-align: left;
+            color: #527178; padding: 3px clamp(6px, 2vw, 10px); text-align: left;
         }
-        .tide-table thead th.th-nivel { text-align: right; padding-right: 10px; }
+        .tide-table thead th.th-nivel { text-align: right; padding-right: clamp(6px, 2vw, 10px); }
         .tide-table thead th:last-child { text-align: right; }
         .tide-table tbody tr { background: #F4FAFA; transition: background 0.2s; }
         .tide-table tbody tr:hover { background: #EAF5F5; }
-        .tide-table tbody td { padding: 10px; font-size: 0.95em; }
-        .tide-table tbody td:first-child { border-radius: 8px 0 0 8px; font-weight: 600; font-size: 1.1em; }
-        .tide-table tbody td:last-child { border-radius: 0 8px 8px 0; text-align: right; font-weight: 700; font-size: 1.1em; }
-        .tide-table .arrow-cell { text-align: right; padding-right: 14px; width: 44px; }
+        .tide-table tbody td { padding: clamp(7px, 2vw, 10px); font-size: clamp(0.82em, 2.2vw, 0.95em); }
+        .tide-table tbody td:first-child { border-radius: 8px 0 0 8px; font-weight: 600; font-size: clamp(0.95em, 2.5vw, 1.1em); }
+        .tide-table tbody td:last-child { border-radius: 0 8px 8px 0; text-align: right; font-weight: 700; font-size: clamp(0.95em, 2.5vw, 1.1em); }
+        .tide-table .arrow-cell { text-align: right; padding-right: clamp(8px, 2vw, 14px); width: clamp(32px, 10vw, 44px); }
 
         /* Share header (visible only in share image) */
-        .share-header { display: none; padding: 14px 16px 10px; border-bottom: 1px solid #B7E5E2; margin-bottom: 8px; }
+        .share-header { display: none; padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 16px) clamp(6px, 1.5vw, 10px); border-bottom: 1px solid #B7E5E2; margin-bottom: 8px; }
         .share-header-inner { display: flex; align-items: center; justify-content: space-between; }
         .share-header-left { display: flex; align-items: center; gap: 10px; }
         .share-header img.share-logo { max-width: 50px; max-height: 50px; border-radius: 8px; }
@@ -387,22 +391,14 @@
         .share-mode .month-weekdays span { font-size: 0.5em; }
 
         .share-legend {
-            display: none; padding: 10px 12px; margin-top: 10px;
+            display: none; padding: clamp(8px, 2vw, 12px); margin-top: 10px;
             background: #F4FAFA; border-radius: 8px;
-            font-size: 0.65em; line-height: 1.6;
+            font-size: clamp(0.55em, 1.6vw, 0.7em); line-height: 1.6;
         }
         .share-legend .legend-title { font-weight: 700; margin-bottom: 4px; color: #102A30; }
         .share-legend .legend-item { display: flex; align-items: center; gap: 6px; color: #102A30; }
-        .share-legend .legend-arrow { font-weight: 900; font-size: 1.1em; width: 16px; text-align: center; }
-        .la-red { color: #ff4444; }
-        .la-red svg { fill: #ff4444; }
-        .la-green { color: #4caf50; }
-        .la-green svg { fill: #4caf50; }
-        .la-orange { color: #ff9800; }
-        .la-orange svg { fill: #ff9800; }
-        .la-gray { color: #888; }
-        .la-gray svg { fill: #888; }
-        .tide-arrow { font-size: 1.3em; font-weight: 900; line-height: 1; }
+        .share-legend .legend-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
+        .tide-arrow { font-size: clamp(1em, 2.8vw, 1.3em); font-weight: 900; line-height: 1; }
         .tide-arrow.red { color: #ff5252; }
         .tide-arrow.red svg { fill: #ff5252; }
         .tide-arrow.orange { color: #ff9800; }
@@ -413,12 +409,13 @@
         .tide-arrow.neutral svg { fill: #9e9e9e; }
 
         .level-value { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
-        .level-m { font-size: 1em; color: #102A30; }
-        .level-ft { font-size: 0.7em; color: #527178; }
+        .level-m { font-size: clamp(0.85em, 2.2vw, 1em); color: #102A30; }
+        .level-ft { font-size: clamp(0.6em, 1.5vw, 0.7em); color: #527178; }
 
         .tide-chart-container {
-            margin-top: 12px; background: #F4FAFA;
-            border-radius: 10px; padding: 10px; border: 1px solid #B7E5E2;
+            margin-top: clamp(8px, 2vw, 12px); background: #F4FAFA;
+            border-radius: 10px; padding: clamp(7px, 2vw, 10px); border: 1px solid #B7E5E2;
+            overflow: hidden;
         }
         .tide-chart-label {
             font-size: 0.6em; text-transform: uppercase; color: #527178;
@@ -427,60 +424,60 @@
 
         .info-box {
             background: rgba(0,96,108,.06); border-left: 3px solid #00606C;
-            border-radius: 0 8px 8px 0; padding: 8px 12px; margin-top: 12px;
-            font-size: 0.75em; color: #527178;
+            border-radius: 0 8px 8px 0; padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); margin-top: clamp(8px, 2vw, 12px);
+            font-size: clamp(0.65em, 1.8vw, 0.8em); color: #527178;
         }
 
         /* ===== WEEK VIEW (grid de blocos) ===== */
         .week-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(6px, 1.5vw, 10px);
         }
         .week-block {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            border-radius: 12px; padding: 10px 8px; text-align: center;
+            border-radius: 12px; padding: clamp(6px, 1.5vw, 10px) clamp(4px, 1vw, 8px); text-align: center;
             color: #102A30; aspect-ratio: 1; display: flex; flex-direction: column;
             justify-content: center; overflow: hidden;
         }
         .week-block.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
-        .week-block .wb-day { font-size: 0.65em; text-transform: uppercase; color: #527178; letter-spacing: 1px; }
-        .week-block .wb-date { font-size: 1.3em; font-weight: 800; margin: 2px 0 6px; }
+        .week-block .wb-day { font-size: clamp(0.5em, 1.5vw, 0.7em); text-transform: uppercase; color: #527178; letter-spacing: 1px; }
+        .week-block .wb-date { font-size: clamp(0.9em, 3vw, 1.4em); font-weight: 800; margin: 2px 0 clamp(3px, 0.8vw, 6px); }
         .week-block .wb-tide {
             display: flex; align-items: center; justify-content: center; gap: 3px;
-            font-size: 0.7em; margin: 1px 0; opacity: 0.8;
+            font-size: clamp(0.5em, 1.4vw, 0.75em); margin: 1px 0; opacity: 0.8;
         }
-        .week-block .wb-tide .wb-time { min-width: 30px; text-align: right; }
-        .week-block .wb-tide .wb-level { font-weight: 600; min-width: 34px; text-align: right; }
+        .week-block .wb-tide .wb-time { min-width: 0; text-align: right; }
+        .week-block .wb-tide .wb-level { font-weight: 600; min-width: 0; text-align: right; }
         .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; width: 1.1em; text-align: center; }
         .week-block .wb-tide .wb-arrow svg { width: 1em; height: 1.2em; }
 
         /* ===== MONTH VIEW (calendário) ===== */
         .month-nav {
-            display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 14px); margin-bottom: clamp(8px, 2vw, 14px);
         }
-        .month-nav .month-title { font-size: 1.2em; font-weight: 700; min-width: 180px; text-align: center; color: #102A30; }
+        .month-nav .month-title { font-size: clamp(1em, 3vw, 1.2em); font-weight: 700; min-width: 0; text-align: center; color: #102A30; }
         .month-nav button {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            color: #00606C; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-            font-size: 1em; display: flex; align-items: center; justify-content: center;
+            color: #00606C; width: clamp(28px, 7vw, 32px); height: clamp(28px, 7vw, 32px); border-radius: 50%; cursor: pointer;
+            font-size: clamp(0.85em, 2.2vw, 1em); display: flex; align-items: center; justify-content: center;
             transition: all 0.2s; padding: 0;
         }
         .month-nav button:hover { background: #F4FAFA; }
 
         .month-weekdays {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 5px;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: clamp(2px, 0.5vw, 5px); margin-bottom: clamp(2px, 0.5vw, 5px);
         }
         .month-weekdays span {
-            text-align: center; font-size: 0.65em; text-transform: uppercase;
+            text-align: center; font-size: clamp(0.5em, 1.5vw, 0.65em); text-transform: uppercase;
             color: #527178; letter-spacing: 1px; padding: 4px 0;
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 0.5vw, 4px);
         }
 
         .month-cell {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            border-radius: 8px; padding: 4px 3px; color: #102A30;
+            border-radius: 8px; padding: 3px 2px; color: #102A30;
             display: flex; flex-direction: column;
             cursor: pointer; transition: background 0.2s; overflow: hidden;
             aspect-ratio: 1;
@@ -490,7 +487,7 @@
         .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
 
         .month-cell .mc-head {
-            text-align: center; font-size: 0.5em; font-weight: 700;
+            text-align: center; font-size: clamp(0.35em, 1.2vw, 0.55em); font-weight: 700;
             padding-bottom: 1px; margin-bottom: 1px; position: relative;
             flex-shrink: 0; color: #102A30; line-height: 1.1;
         }
@@ -507,7 +504,7 @@
         }
 
         .month-cell .mc-tide-row {
-            display: flex; align-items: center; font-size: 0.4em; line-height: 1;
+            display: flex; align-items: center; font-size: clamp(0.28em, 0.9vw, 0.42em); line-height: 1;
             white-space: nowrap; padding: 0; gap: 1px;
         }
 
@@ -527,23 +524,20 @@
             width: 1em; height: 1.2em;
         }
 
-        .loading { text-align: center; padding: 40px; }
+        .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
         .spinner {
             width: 36px; height: 36px; border: 3px solid #B7E5E2;
             border-top-color: #00606C; border-radius: 50%; animation: spin 0.8s linear infinite;
             margin: 0 auto 12px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .error { text-align: center; padding: 30px; color: #d32f2f; }
+        .error { text-align: center; padding: clamp(20px, 5vw, 30px); color: #d32f2f; }
 
         footer { text-align: center; padding: 16px 0; color: #527178; font-size: 0.7em; }
 
         @media (max-width: 420px) {
             .week-grid { grid-template-columns: repeat(2, 1fr); }
             .week-block { aspect-ratio: auto; min-height: 120px; }
-            .month-cell { padding: 3px 2px; aspect-ratio: 1; }
-            .month-cell .mc-head { font-size: 0.5em; }
-            .month-cell .mc-tide-row { font-size: 0.36em; }
         }
     </style>
 </head>
@@ -906,10 +900,7 @@
             .tide-arrow.orange, .tide-arrow.orange svg { color: #ff9800 !important; fill: #ff9800 !important; }
             .tide-arrow.green, .tide-arrow.green svg { color: #4caf50 !important; fill: #4caf50 !important; }
             .tide-arrow.neutral, .tide-arrow.neutral svg { color: #9e9e9e !important; fill: #9e9e9e !important; }
-            .la-red, .la-red svg { color: #ff4444 !important; fill: #ff4444 !important; }
-            .la-green, .la-green svg { color: #4caf50 !important; fill: #4caf50 !important; }
-            .la-orange, .la-orange svg { color: #ff9800 !important; fill: #ff9800 !important; }
-            .la-gray, .la-gray svg { color: #888 !important; fill: #888 !important; }
+
             body { background: #17343A !important; }
             header { background: transparent !important; }
             .card { background: #21464D !important; border: 1px solid rgba(255,255,255,.12) !important; box-shadow: 0 6px 24px rgba(0,0,0,.3) !important; }
@@ -1067,14 +1058,16 @@
 
         // ===== SHARE LEGEND =====
         function getLegendHtml() {
-            const upArrow = '<svg width="12" height="16" viewBox="0 0 14 18" fill="currentColor"><path d="M7 0C7 0 7 0 7 0L7 14L3 10L0 13L7 18L14 13L11 10L7 14L7 0Z"/></svg>';
-            const downArrow = '<svg width="12" height="16" viewBox="0 0 14 18" fill="currentColor"><path d="M7 18C7 18 7 18 7 18L7 4L3 8L0 5L7 0L14 5L11 8L7 4L7 18Z"/></svg>';
+            const upArrow = arrowHtml({ symbol: 'up', colorClass: 'red' });
+            const downGreen = arrowHtml({ symbol: 'down', colorClass: 'green' });
+            const downOrange = arrowHtml({ symbol: 'down', colorClass: 'orange' });
+            const downGray = arrowHtml({ symbol: 'down', colorClass: 'neutral' });
             return `<div class="share-legend">
                 <div class="legend-title">Legenda</div>
-                <div class="legend-item"><span class="legend-arrow la-red">${upArrow}</span> Maré alta</div>
-                <div class="legend-item"><span class="legend-arrow la-green">${downArrow}</span> Maré baixa (ok: 6h30-17h, abaixo 0.7m)</div>
-                <div class="legend-item"><span class="legend-arrow la-orange">${downArrow}</span> Maré baixa alta ou após 17h</div>
-                <div class="legend-item"><span class="legend-arrow la-gray">${downArrow}</span> Maré baixa (fora do horário ideal)</div>
+                <div class="legend-item"><span class="legend-arrow">${upArrow}</span> Maré alta</div>
+                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa (ok: 6h30-17h, abaixo 0.7m)</div>
+                <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa alta ou após 17h</div>
+                <div class="legend-item"><span class="legend-arrow">${downGray}</span> Maré baixa (fora do horário ideal)</div>
             </div>`;
         }
 
