@@ -451,7 +451,7 @@
         .week-block .wb-tide .wb-time { min-width: 0; text-align: right; opacity: 0.6; }
         .week-block .wb-tide .wb-sep { opacity: 0.3; }
         .week-block .wb-tide .wb-level { font-weight: 600; min-width: 0; text-align: right; }
-        .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; justify-content: center; width: 1em; flex-shrink: 0; line-height: 1; }
+        .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; justify-content: center; width: 1em; flex-shrink: 0; line-height: 1; margin-left: 2px; }
         .week-block .wb-tide .wb-arrow svg { height: 0.9em; width: auto; }
 
         /* ===== MONTH VIEW (calendário) ===== */
@@ -1356,7 +1356,9 @@
         }
 
         function arrowHtml(arrow, size) {
-            return `AAA`;
+            const cls = `tide-arrow ${arrow.colorClass}`;
+            const rot = arrow.symbol === 'down' ? ' transform="rotate(180,12,12)"' : '';
+            return `<span class="${cls}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L12 17L7 12L3 16L12 23L21 16L17 12L12 17Z"${rot}/></svg></span>`;
         }
 
         function generateTideChart(hours, meanLevel) {
