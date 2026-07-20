@@ -512,16 +512,20 @@
             opacity: 0.7;
         }
 
+        .month-cell .mc-tide-row .mc-sep {
+            opacity: 0.3; margin: 0 1px;
+        }
+
         .month-cell .mc-tide-row .mc-level {
             font-weight: 600;
         }
 
         .month-cell .mc-tide-row .mc-arrow {
-            display: inline-flex; align-items: center; width: 1em;
-            text-align: center; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 1em; flex-shrink: 0; line-height: 1;
         }
         .month-cell .mc-tide-row .mc-arrow svg {
-            width: 1em; height: 1.2em;
+            height: 0.85em; width: auto; vertical-align: middle;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -1820,7 +1824,7 @@
                         const isHigh = h.level >= meanLevel;
                         const arrow = getArrowInfo(isHigh, h.level, h.hour);
                         tides += `<div class="mc-tide-row">
-                            <span class="mc-time">${h.hour.substring(0,5)}</span><span style="opacity:0.3">-</span><span class="mc-level">${h.level.toFixed(2)}</span><span class="mc-arrow">${arrowHtml(arrow)}</span>
+                            <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span><span class="mc-arrow">${arrowHtml(arrow)}</span>
                         </div>`;
                     });
                 }
