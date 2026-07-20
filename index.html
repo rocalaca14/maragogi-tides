@@ -445,13 +445,13 @@
         .week-block .wb-date { font-size: clamp(0.9em, 3vw, 1.4em); font-weight: 800; margin: 2px 0 clamp(3px, 0.8vw, 6px); }
         .week-block .wb-tides { display: flex; flex-direction: column; gap: 1px; flex: 1; justify-content: center; }
         .week-block .wb-tide {
-            display: flex; align-items: center; justify-content: center; gap: 3px;
+            display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 3px;
             font-size: clamp(0.5em, 1.4vw, 0.75em); opacity: 0.8;
         }
-        .week-block .wb-tide .wb-time { min-width: 0; text-align: right; opacity: 0.6; }
-        .week-block .wb-tide .wb-sep { opacity: 0.3; }
-        .week-block .wb-tide .wb-level { font-weight: 600; min-width: 0; text-align: right; }
-        .week-block .wb-tide .wb-arrow { display: inline-flex; align-items: center; justify-content: center; width: 1em; flex-shrink: 0; line-height: 1; margin-left: 2px; }
+        .week-block .wb-tide .wb-time { text-align: right; opacity: 0.6; }
+        .week-block .wb-tide .wb-sep { opacity: 0.3; text-align: center; }
+        .week-block .wb-tide .wb-level { font-weight: 600; text-align: right; }
+        .week-block .wb-tide .wb-arrow { display: flex; align-items: center; justify-content: center; }
         .week-block .wb-tide .wb-arrow svg { height: 0.9em; width: auto; }
 
         /* ===== MONTH VIEW (calendário) ===== */
