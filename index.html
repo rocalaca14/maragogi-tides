@@ -1049,11 +1049,11 @@
         const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa', orange: 'Baixa transição', neutral: 'Intermediária' };
         const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down', neutral: 'up' };
 
-        function buildDynamicLegend(hours) {
+        function buildDynamicLegend(hours, prevDayHours) {
             const seen = new Set();
             const items = [];
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i);
+                const arrow = getArrowForRow(hours, i, prevDayHours);
                 const key = arrow.colorClass;
                 if (!seen.has(key)) {
                     seen.add(key);
@@ -1391,7 +1391,7 @@
             return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
         }
 
-        function generateTideChart(hours, meanLevel) {
+        function generateTideChart(hours, meanLevel, prevDayHours) {
             if (!hours || hours.length < 2) return '';
             const w = 320, h = 100, padL = 30, padR = 10, padT = 10, padB = 20;
             const chartW = w - padL - padR;
@@ -1406,7 +1406,7 @@
             const getY = (lvl) => padT + chartH - ((lvl - minL) / rangeL) * chartH;
 
             function getArrowColor(idx) {
-                const arrow = getArrowForRow(hours, idx);
+                const arrow = getArrowForRow(hours, idx, prevDayHours);
                 return ARROW_COLORS[arrow.colorClass];
             }
 
@@ -1646,8 +1646,9 @@
             const seaTemp = await fetchSeaTemp(date);
 
             let rows = '';
+            const prevDayHours = date.getDate() > 1 && harbor.months[0].days[date.getDate() - 2] ? harbor.months[0].days[date.getDate() - 2].hours : null;
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i);
+                const arrow = getArrowForRow(hours, i, prevDayHours);
                 rows += `<div class="tide-row">
                     <div class="tide-time">${h.hour.substring(0,5)}</div>
                     <div class="tide-level">${h.level.toFixed(2)}m (${(h.level*3.28084).toFixed(1)}ft)</div>
@@ -1738,9 +1739,9 @@
                         ${rows}
                     </div>
                     <div class="tide-chart-container">
-                        ${generateTideChart(hours, meanLevel)}
+                        ${generateTideChart(hours, meanLevel, prevDayHours)}
                     </div>
-                    ${buildDynamicLegend(hours)}
+                    ${buildDynamicLegend(hours, prevDayHours)}
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
@@ -1768,8 +1769,9 @@
                 const dayNum = date.getDate();
 
                 let tides = '';
-                hours.forEach((h, i) => {
-                    const arrow = getArrowForRow(hours, i);
+                const prevDayHoursForPeriod = i > 0 && harbor.months[0].days[i - 1] ? harbor.months[0].days[i - 1].hours : null;
+                hours.forEach((h, j) => {
+                    const arrow = getArrowForRow(hours, j, prevDayHoursForPeriod);
                     tides += `<div class="wb-tide">
                         <span class="wb-time">${h.hour.substring(0,5)}</span>
                         <span class="wb-sep">-</span>
