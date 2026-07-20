@@ -399,16 +399,11 @@
         .share-legend .legend-title { font-weight: 700; margin-bottom: 4px; color: #102A30; }
         .share-legend .legend-item { display: flex; align-items: center; gap: 6px; color: #102A30; }
         .share-legend .legend-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
-        .tide-arrow { font-size: clamp(1em, 2.8vw, 1.3em); font-weight: 900; line-height: 1; display: inline-flex; align-items: center; }
-        .tide-arrow svg { height: 0.9em; width: auto; }
+        .tide-arrow { display: inline-flex; align-items: center; justify-content: center; line-height: 1; font-weight: 700; }
         .tide-arrow.red { color: #ff5252; }
-        .tide-arrow.red svg { fill: #ff5252; }
         .tide-arrow.orange { color: #ff9800; }
-        .tide-arrow.orange svg { fill: #ff9800; }
         .tide-arrow.green { color: #4caf50; }
-        .tide-arrow.green svg { fill: #4caf50; }
         .tide-arrow.neutral { color: #9e9e9e; }
-        .tide-arrow.neutral svg { fill: #9e9e9e; }
 
         .level-value { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
         .level-m { font-size: clamp(0.85em, 2.2vw, 1em); color: #102A30; }
@@ -451,8 +446,6 @@
         .week-block .wb-tide .wb-time { text-align: right; opacity: 0.6; }
         .week-block .wb-tide .wb-sep { opacity: 0.3; text-align: center; }
         .week-block .wb-tide .wb-level { font-weight: 600; text-align: right; }
-        .week-block .wb-tide .wb-arrow { display: flex; align-items: center; justify-content: center; }
-        .week-block .wb-tide .wb-arrow svg { height: 0.9em; width: auto; }
 
         /* ===== MONTH VIEW (calendário) ===== */
         .month-nav {
@@ -523,14 +516,6 @@
 
         .month-cell .mc-tide-row .mc-level {
             font-weight: 600;
-        }
-
-        .month-cell .mc-tide-row .mc-arrow {
-            display: inline-flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .month-cell .mc-tide-row .mc-arrow svg {
-            display: block; height: 0.9em; width: auto;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -904,10 +889,10 @@
             .share-legend .legend-title, .share-legend .legend-item,
             .panel, .panel h3, .panel-field label, .panel-field input, .panel-field select,
             .range-fields label, .range-fields input, footer { color: #FFFFFF !important; }
-            .tide-arrow.red, .tide-arrow.red svg { color: #ff5252 !important; fill: #ff5252 !important; }
-            .tide-arrow.orange, .tide-arrow.orange svg { color: #ff9800 !important; fill: #ff9800 !important; }
-            .tide-arrow.green, .tide-arrow.green svg { color: #4caf50 !important; fill: #4caf50 !important; }
-            .tide-arrow.neutral, .tide-arrow.neutral svg { color: #9e9e9e !important; fill: #9e9e9e !important; }
+            .tide-arrow.red { color: #ff5252 !important; }
+            .tide-arrow.orange { color: #ff9800 !important; }
+            .tide-arrow.green { color: #4caf50 !important; }
+            .tide-arrow.neutral { color: #9e9e9e !important; }
 
             body { background: #17343A !important; }
             header { background: transparent !important; }
@@ -1355,10 +1340,9 @@
             return { symbol: 'down', colorClass: 'neutral' };
         }
 
-        function arrowHtml(arrow, size) {
-            const cls = `tide-arrow ${arrow.colorClass}`;
-            const rot = arrow.symbol === 'down' ? ' transform="rotate(180,12,12)"' : '';
-            return `<span class="${cls}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L12 17L7 12L3 16L12 23L21 16L17 12L12 17Z"${rot}/></svg></span>`;
+        function arrowHtml(arrow) {
+            const ch = arrow.symbol === 'up' ? '\u25B2' : '\u25BC';
+            return `<span class="tide-arrow ${arrow.colorClass}">${ch}</span>`;
         }
 
         function generateTideChart(hours, meanLevel) {
@@ -1753,7 +1737,7 @@
                         <span class="wb-time">${h.hour.substring(0,5)}</span>
                         <span class="wb-sep">-</span>
                         <span class="wb-level">${h.level.toFixed(2)}</span>
-                        <span class="wb-arrow">${arrowHtml(arrow)}</span>
+                        ${arrowHtml(arrow)}
                     </div>`;
                 });
 
@@ -1826,7 +1810,7 @@
                         const isHigh = h.level >= meanLevel;
                         const arrow = getArrowInfo(isHigh, h.level, h.hour);
                         tides += `<div class="mc-tide-row">
-                            <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span><span class="mc-arrow">${arrowHtml(arrow)}</span>
+                            <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
                         </div>`;
                     });
                 }
