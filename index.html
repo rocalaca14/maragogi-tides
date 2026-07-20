@@ -459,8 +459,8 @@
         .month-nav button:hover { background: #F4FAFA; }
 
         .month-weekdays {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
-            margin-bottom: 10px; max-width: 480px; margin-left: auto; margin-right: auto;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+            width: 100%; max-width: 420px; margin: 0 auto 8px; padding: 0 12px; box-sizing: border-box;
         }
         .month-weekdays span {
             text-align: center; font-size: 10px; text-transform: uppercase;
@@ -468,47 +468,42 @@
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
-            max-width: 480px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+            width: 100%; max-width: 420px; margin: 0 auto; padding: 0 12px; box-sizing: border-box;
         }
 
         .month-cell {
-            background: #f9f9f9; border: none;
-            border-top: 3px solid transparent; border-bottom: 3px solid transparent;
-            border-radius: 12px; padding: 8px; color: #102A30;
+            aspect-ratio: 1 / 1;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; transition: background 0.2s; overflow: hidden;
-            min-height: 80px; text-align: center;
+            padding: 4px; border-radius: 8px;
+            background-color: #fafafa;
+            border-top: 3px solid transparent; border-bottom: 3px solid transparent;
+            border-left: none; border-right: none;
+            overflow: hidden; box-sizing: border-box;
+            cursor: pointer; transition: background 0.2s;
         }
-        .month-cell:hover { background: #F4FAFA; border-color: #00DFC3; }
+        .month-cell:hover { background: #F4FAFA; }
         .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
         .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
 
         .month-cell .mc-head {
-            text-align: center; font-size: 18px; font-weight: 700;
-            padding-bottom: 4px; margin-bottom: 4px; position: relative;
-            flex-shrink: 0; color: #102A30; line-height: 1.2;
-        }
-
-        .month-cell .mc-head::after {
-            content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #B7E5E2, transparent);
+            font-size: 16px; font-weight: 700; margin: 0; line-height: 1;
+            text-align: center; flex-shrink: 0; color: #102A30;
         }
 
         .month-cell .mc-body {
             flex: 1; display: flex; flex-direction: column; justify-content: center;
-            gap: 1px; min-height: 0;
+            gap: 0; min-height: 0;
         }
 
         .month-cell .mc-tide-row {
             display: flex; align-items: center; justify-content: center;
-            font-size: 9px; line-height: 1.3;
-            white-space: nowrap; padding: 0; gap: 1px;
+            font-size: 8px; line-height: 1.1;
+            white-space: nowrap; padding: 0; margin: 0;
         }
 
         .month-cell .mc-tide-row .mc-time {
-            opacity: 0.7; color: #666;
+            color: #666;
         }
 
         .month-cell .mc-tide-row .mc-sep {
@@ -516,7 +511,7 @@
         }
 
         .month-cell .mc-tide-row .mc-level {
-            font-weight: 600; font-size: 9px; color: #000;
+            font-weight: 600; color: #000;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -1350,6 +1345,23 @@
             return { text: 'Fora do horário', class: '' };
         }
 
+        function calculateTideColor(currentLevel, prevLevel) {
+            const high = 1.60, lowTrans = 0.90, low = 0.70;
+            if (prevLevel !== null) {
+                if (currentLevel > prevLevel) {
+                    if (currentLevel > high) return 'red';
+                    if (currentLevel >= lowTrans) return 'neutral';
+                    return 'neutral';
+                } else if (currentLevel < prevLevel) {
+                    if (currentLevel < low) return 'green';
+                    return 'orange';
+                }
+            }
+            if (currentLevel > high) return 'red';
+            if (currentLevel < low) return 'green';
+            return 'neutral';
+        }
+
         function getArrowInfo(currentLevel, prevLevel, nextLevel) {
             let rising = null;
             if (prevLevel !== null && currentLevel > prevLevel) rising = true;
@@ -1357,24 +1369,17 @@
             if (prevLevel !== null && currentLevel < prevLevel) rising = false;
             else if (nextLevel !== null && currentLevel > nextLevel) rising = false;
 
-            if (rising === true) {
-                if (currentLevel >= 1.6) return { symbol: 'up', colorClass: 'red' };
-                return { symbol: 'up', colorClass: 'neutral' };
-            }
-            if (rising === false) {
-                if (currentLevel <= 0.7) return { symbol: 'down', colorClass: 'green' };
-                if (currentLevel < 1.6) return { symbol: 'down', colorClass: 'orange' };
-                return { symbol: 'down', colorClass: 'red' };
-            }
-            if (currentLevel >= 1.6) return { symbol: 'up', colorClass: 'red' };
-            if (currentLevel <= 0.7) return { symbol: 'down', colorClass: 'green' };
-            return { symbol: 'up', colorClass: 'neutral' };
+            const symbol = (rising === false) ? 'down' : 'up';
+            const colorClass = calculateTideColor(currentLevel, prevLevel);
+            return { symbol, colorClass };
         }
 
         function getArrowForRow(hours, i) {
             const prev = i > 0 ? hours[i - 1].level : null;
             const next = i < hours.length - 1 ? hours[i + 1].level : null;
-            return getArrowInfo(hours[i].level, prev, next);
+            const result = getArrowInfo(hours[i].level, prev, next);
+            console.log(`Hour ${hours[i].hour}: level=${hours[i].level}, prev=${prev}, next=${next}, symbol=${result.symbol}, color=${result.colorClass}`);
+            return result;
         }
 
         function arrowHtml(arrow) {
@@ -1390,7 +1395,9 @@
                 const arrow = getArrowForRow(hours, i);
                 counts[arrow.colorClass]++;
             });
-            return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+            const predominant = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+            console.log('Day color counts:', counts, '→ predominant:', predominant);
+            return predominant;
         }
 
         function generateTideChart(hours, meanLevel) {
