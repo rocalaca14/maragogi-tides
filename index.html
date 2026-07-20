@@ -461,32 +461,33 @@
         .month-nav button:hover { background: #F4FAFA; }
 
         .month-weekdays {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: clamp(2px, 0.5vw, 5px); margin-bottom: clamp(2px, 0.5vw, 5px);
+            display: grid; grid-template-columns: repeat(7, minmax(0, 60px)); gap: 8px;
+            margin-bottom: 8px; max-width: 500px; margin-left: auto; margin-right: auto; justify-content: center;
         }
         .month-weekdays span {
-            text-align: center; font-size: clamp(0.5em, 1.5vw, 0.65em); text-transform: uppercase;
+            text-align: center; font-size: 10px; text-transform: uppercase;
             color: #527178; letter-spacing: 1px; padding: 4px 0;
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 0.5vw, 4px);
+            display: grid; grid-template-columns: repeat(7, minmax(0, 60px)); gap: 8px;
+            max-width: 500px; margin: 0 auto; justify-content: center;
         }
 
         .month-cell {
             background: #FFFFFF; border: 1px solid #B7E5E2;
-            border-radius: 8px; padding: clamp(2px, 0.5vw, 4px) clamp(1px, 0.3vw, 3px); color: #102A30;
+            border-radius: 8px; padding: 6px; color: #102A30;
             display: flex; flex-direction: column;
             cursor: pointer; transition: background 0.2s; overflow: hidden;
-            aspect-ratio: 1;
         }
         .month-cell:hover { background: #F4FAFA; border-color: #00DFC3; }
         .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
         .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
 
         .month-cell .mc-head {
-            text-align: center; font-size: clamp(0.32em, 1.1vw, 0.5em); font-weight: 700;
-            padding-bottom: clamp(1px, 0.4vw, 3px); margin-bottom: clamp(1px, 0.3vw, 2px); position: relative;
-            flex-shrink: 0; color: #102A30; line-height: 1.1;
+            text-align: center; font-size: 16px; font-weight: 700;
+            padding-bottom: 2px; margin-bottom: 2px; position: relative;
+            flex-shrink: 0; color: #102A30; line-height: 1.2;
         }
 
         .month-cell .mc-head::after {
@@ -497,13 +498,13 @@
 
         .month-cell .mc-body {
             flex: 1; display: flex; flex-direction: column; justify-content: center;
-            gap: clamp(0px, 0.15vw, 1px); min-height: 0;
+            gap: 1px; min-height: 0;
         }
 
         .month-cell .mc-tide-row {
             display: flex; align-items: center; justify-content: center;
-            font-size: clamp(0.28em, 0.9vw, 0.42em); line-height: 1;
-            white-space: nowrap; padding: 0; gap: clamp(1px, 0.3vw, 2px);
+            font-size: 10px; line-height: 1.2;
+            white-space: nowrap; padding: 0; gap: 1px;
         }
 
         .month-cell .mc-tide-row .mc-time {
@@ -515,7 +516,7 @@
         }
 
         .month-cell .mc-tide-row .mc-level {
-            font-weight: 600;
+            font-weight: 600; font-size: 11px;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
