@@ -1057,11 +1057,11 @@
         const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa', orange: 'Baixa transição', neutral: 'Intermediária' };
         const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down', neutral: 'up' };
 
-        function buildDynamicLegend(hours, meanLevel) {
+        function buildDynamicLegend(hours) {
             const seen = new Set();
             const items = [];
-            hours.forEach(h => {
-                const arrow = getArrowInfo(h.level >= meanLevel, h.level, h.hour);
+            hours.forEach((h, i) => {
+                const arrow = getArrowForRow(hours, i);
                 const key = arrow.colorClass;
                 if (!seen.has(key)) {
                     seen.add(key);
@@ -1354,14 +1354,31 @@
             return { text: 'Fora do horário', class: '' };
         }
 
-        function getArrowInfo(isHigh, level, hourStr) {
-            if (isHigh) return { symbol: 'up', colorClass: 'red' };
-            const p = hourStr.split(':');
-            const totalMin = parseInt(p[0])*60 + parseInt(p[1]);
-            const inWindow = totalMin >= 390 && totalMin < 1020;
-            if (level <= 0.7 && inWindow) return { symbol: 'down', colorClass: 'green' };
-            if (level > 0.7 || parseInt(p[0]) >= 17) return { symbol: 'down', colorClass: 'orange' };
-            return { symbol: 'down', colorClass: 'neutral' };
+        function getArrowInfo(currentLevel, prevLevel, nextLevel) {
+            let rising = null;
+            if (prevLevel !== null && currentLevel > prevLevel) rising = true;
+            else if (nextLevel !== null && currentLevel < nextLevel) rising = true;
+            if (prevLevel !== null && currentLevel < prevLevel) rising = false;
+            else if (nextLevel !== null && currentLevel > nextLevel) rising = false;
+
+            if (rising === true) {
+                if (currentLevel >= 1.6) return { symbol: 'up', colorClass: 'red' };
+                return { symbol: 'up', colorClass: 'neutral' };
+            }
+            if (rising === false) {
+                if (currentLevel <= 0.7) return { symbol: 'down', colorClass: 'green' };
+                if (currentLevel < 1.6) return { symbol: 'down', colorClass: 'orange' };
+                return { symbol: 'down', colorClass: 'red' };
+            }
+            if (currentLevel >= 1.6) return { symbol: 'up', colorClass: 'red' };
+            if (currentLevel <= 0.7) return { symbol: 'down', colorClass: 'green' };
+            return { symbol: 'up', colorClass: 'neutral' };
+        }
+
+        function getArrowForRow(hours, i) {
+            const prev = i > 0 ? hours[i - 1].level : null;
+            const next = i < hours.length - 1 ? hours[i + 1].level : null;
+            return getArrowInfo(hours[i].level, prev, next);
         }
 
         function arrowHtml(arrow) {
@@ -1369,12 +1386,12 @@
             return `<span class="tide-arrow ${arrow.colorClass}">${ch}</span>`;
         }
 
-        const ARROW_COLORS = { red: '#ff5252', green: '#4caf50', orange: '#ff9800', neutral: '#9e9e9e' };
+        const ARROW_COLORS = { red: '#FF0000', green: '#00AA00', orange: '#FF8800', neutral: '#999999' };
 
-        function getDayTideState(hours, meanLevel) {
+        function getDayTideState(hours) {
             const counts = { red: 0, green: 0, orange: 0, neutral: 0 };
-            hours.forEach(h => {
-                const arrow = getArrowInfo(h.level >= meanLevel, h.level, h.hour);
+            hours.forEach((h, i) => {
+                const arrow = getArrowForRow(hours, i);
                 counts[arrow.colorClass]++;
             });
             return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
@@ -1394,14 +1411,9 @@
             const getX = (i) => padL + (i / (hours.length - 1)) * chartW;
             const getY = (lvl) => padT + chartH - ((lvl - minL) / rangeL) * chartH;
 
-            function getArrowColor(isHigh, level, hourStr) {
-                if (isHigh) return '#ff5252';
-                const p = hourStr.split(':');
-                const totalMin = parseInt(p[0])*60 + parseInt(p[1]);
-                const inWindow = totalMin >= 390 && totalMin < 1020;
-                if (level <= 0.7 && inWindow) return '#4caf50';
-                if (level > 0.7 || parseInt(p[0]) >= 17) return '#ff9800';
-                return '#9e9e9e';
+            function getArrowColor(idx) {
+                const arrow = getArrowForRow(hours, idx);
+                return ARROW_COLORS[arrow.colorClass];
             }
 
             const pts = hours.map((hr, i) => ({ x: getX(i), y: getY(hr.level) }));
@@ -1429,8 +1441,7 @@
 
             let dots = '';
             hours.forEach((hr, i) => {
-                const isHigh = hr.level >= meanLevel;
-                const color = getArrowColor(isHigh, hr.level, hr.hour);
+                const color = getArrowColor(i);
                 dots += `<circle cx="${pts[i].x}" cy="${pts[i].y}" r="3" fill="${color}" stroke="#fff" stroke-width="0.5"/>`;
             });
 
@@ -1641,13 +1652,12 @@
             const seaTemp = await fetchSeaTemp(date);
 
             let rows = '';
-            hours.forEach(h => {
-                const isHigh = h.level >= meanLevel;
-                const arrow = getArrowInfo(isHigh, h.level, h.hour);
+            hours.forEach((h, i) => {
+                const arrow = getArrowForRow(hours, i);
                 rows += `<tr>
                     <td>${h.hour.substring(0,5)}</td>
                     <td><div class="level-value"><span class="level-m">${h.level.toFixed(2)}m</span><span class="level-ft">(${(h.level*3.28084).toFixed(1)}ft)</span></div></td>
-                    <td class="arrow-cell">${arrowHtml(arrow, 1.3)}</td>
+                    <td class="arrow-cell">${arrowHtml(arrow)}</td>
                 </tr>`;
             });
 
@@ -1737,7 +1747,7 @@
                     <div class="tide-chart-container">
                         ${generateTideChart(hours, meanLevel)}
                     </div>
-                    ${buildDynamicLegend(hours, meanLevel)}
+                    ${buildDynamicLegend(hours)}
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
@@ -1765,9 +1775,8 @@
                 const dayNum = date.getDate();
 
                 let tides = '';
-                hours.forEach(h => {
-                    const isHigh = h.level >= meanLevel;
-                    const arrow = getArrowInfo(isHigh, h.level, h.hour);
+                hours.forEach((h, i) => {
+                    const arrow = getArrowForRow(hours, i);
                     tides += `<div class="wb-tide">
                         <span class="wb-time">${h.hour.substring(0,5)}</span>
                         <span class="wb-sep">-</span>
@@ -1807,7 +1816,7 @@
                         </div>
                     </div>
                     <div class="week-grid">${blocks}</div>
-                    ${buildDynamicLegend(allHours, meanLevel)}
+                    ${buildDynamicLegend(allHours)}
                 </div>
                 <div class="btn-row">
                     <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
@@ -1842,14 +1851,13 @@
                 let tides = '';
                 let borderStyle = '';
                 if (dayData) {
-                    dayData.hours.forEach(h => {
-                        const isHigh = h.level >= meanLevel;
-                        const arrow = getArrowInfo(isHigh, h.level, h.hour);
+                    dayData.hours.forEach((h, i) => {
+                        const arrow = getArrowForRow(dayData.hours, i);
                         tides += `<div class="mc-tide-row">
                             <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
                         </div>`;
                     });
-                    const dominant = getDayTideState(dayData.hours, meanLevel);
+                    const dominant = getDayTideState(dayData.hours);
                     borderStyle = ` style="border-top: 3px solid ${ARROW_COLORS[dominant]}; border-bottom: 3px solid ${ARROW_COLORS[dominant]}"`;
                 }
 
