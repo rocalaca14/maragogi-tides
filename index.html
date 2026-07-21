@@ -1265,16 +1265,17 @@
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
+        let tideDataCache = null;
         async function fetchTideData(month, days) {
-            const daysParam = `[${days.join(',')}]`;
-            const apiUrl = `${API_DIRECT}/geo-tabua-mare/[${LAT},${LNG}]/${STATE}/${month}/${daysParam}`;
-            try {
-                const resp = await fetch(apiUrl);
-                if (resp.ok) return await resp.json();
-            } catch (e) {}
-            const resp = await fetch(API_CORS_PROXY + encodeURIComponent(apiUrl));
-            if (!resp.ok) throw new Error('Erro ao buscar dados');
-            return await resp.json();
+            if (!tideDataCache) {
+                const resp = await fetch('/maragogi-2026.json');
+                if (!resp.ok) throw new Error('Erro ao buscar dados');
+                tideDataCache = await resp.json();
+            }
+            const monthData = tideDataCache.data[0].months[month - 1];
+            if (!monthData) throw new Error('Mês não encontrado');
+            const filteredDays = days.map(d => monthData.days[d - 1]).filter(Boolean);
+            return { data: [{ months: [{ days: filteredDays }], mean_level: tideDataCache.data[0].mean_level }] };
         }
 
         function setActiveBtn(id) {
