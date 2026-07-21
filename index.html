@@ -1268,7 +1268,7 @@
         let tideDataCache = null;
         async function fetchTideData(month, days) {
             if (!tideDataCache) {
-                const resp = await fetch('/maragogi-2026.json');
+                const resp = await fetch('maragogi-2026.json');
                 if (!resp.ok) throw new Error('Erro ao buscar dados');
                 tideDataCache = await resp.json();
             }
