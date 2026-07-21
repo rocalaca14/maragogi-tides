@@ -547,15 +547,6 @@
             <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
         </div>
         <ul class="sidebar-menu">
-            <li onclick="navigateTo('day')">
-                <span class="menu-icon">&#128197;</span> Dia
-            </li>
-            <li onclick="navigateTo('month')">
-                <span class="menu-icon">&#128198;</span> Mês
-            </li>
-            <li onclick="navigateTo('period')">
-                <span class="menu-icon">&#128200;</span> Período
-            </li>
             <li onclick="openPersonalizar()">
                 <span class="menu-icon">&#9881;</span> Personalizar
             </li>
@@ -735,13 +726,6 @@
         function closeSidebar() {
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('open');
-        }
-
-        function navigateTo(view) {
-            closeSidebar();
-            if (view === 'day') loadDay(new Date());
-            else if (view === 'month') loadMonth();
-            else if (view === 'period') openRangePicker();
         }
 
         // ===== PERSONALIZAR =====
