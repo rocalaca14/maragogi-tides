@@ -692,11 +692,9 @@
     </div>
 
     <script>
-        const API_DIRECT = 'https://tabuamare.devtu.qzz.io/api/v2';
+        const TIDETURTLE_API = 'https://tideturtle.com/api/v1';
         const IS_GITHUB_PAGES = location.hostname.endsWith('github.io');
-        const API_CORS_PROXY = IS_GITHUB_PAGES
-            ? 'https://corsproxy.io/?'
-            : '/proxy/';
+        const API_CORS_PROXY = IS_GITHUB_PAGES ? 'https://corsproxy.io/?' : '';
         let STATE = 'al';
         let LAT = '-9.0122';
         let LNG = '-35.2225';
@@ -1265,16 +1263,47 @@
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
+        let tideCache = null;
+        let tideCacheDate = null;
+
         async function fetchTideData(month, days) {
-            const daysParam = `[${days.join(',')}]`;
-            const apiUrl = `${API_DIRECT}/geo-tabua-mare/[${LAT},${LNG}]/${STATE}/${month}/${daysParam}`;
-            try {
-                const resp = await fetch(apiUrl);
-                if (resp.ok) return await resp.json();
-            } catch (e) {}
-            const resp = await fetch(API_CORS_PROXY + encodeURIComponent(apiUrl));
+            const now = new Date();
+            const cacheKey = `${LAT}-${LNG}-${now.toDateString()}`;
+            if (tideCache && tideCacheDate === cacheKey) return tideCache;
+
+            const url = `${TIDETURTLE_API}/tides?lat=${LAT}&lon=${LNG}`;
+            const resp = await fetch(url);
             if (!resp.ok) throw new Error('Erro ao buscar dados');
-            return await resp.json();
+            const raw = await resp.json();
+
+            const extrema = raw.tides?.data?.extrema || [];
+            const tz = raw.tides?.data?.timezone || 'America/Sao_Paulo';
+
+            const daysMap = {};
+            extrema.forEach(e => {
+                const d = new Date(e.time);
+                const localDate = d.toLocaleDateString('sv-SE', { timeZone: tz });
+                if (!daysMap[localDate]) daysMap[localDate] = [];
+                const localHour = d.toLocaleTimeString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false });
+                daysMap[localDate].push({ hour: localHour, level: Math.round(e.height * 100) / 100 });
+            });
+
+            const allLevels = extrema.map(e => e.height);
+            const meanLevel = allLevels.length ? Math.round(allLevels.reduce((a, b) => a + b, 0) / allLevels.length * 100) / 100 : 0;
+
+            const result = { data: [{ months: [{ days: [] }], mean_level: meanLevel }] };
+            const year = now.getFullYear();
+            const monthNum = now.getMonth();
+            const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(monthNum + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const hours = (daysMap[dateStr] || []).sort((a, b) => a.hour.localeCompare(b.hour));
+                result.data[0].months[0].days.push({ day: d, hours });
+            }
+
+            tideCache = result;
+            tideCacheDate = cacheKey;
+            return result;
         }
 
         function setActiveBtn(id) {
