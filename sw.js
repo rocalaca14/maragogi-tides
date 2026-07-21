@@ -1,4 +1,4 @@
-const CACHE_STATIC = 'mares-static-v7';
+const CACHE_STATIC = 'mares-static-v6';
 const CACHE_API = 'mares-api-v2';
 
 self.addEventListener('install', (event) => {
@@ -19,7 +19,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    const isAPI = url.hostname.includes('tideturtle') ||
+    const isAPI = url.hostname.includes('tabuamare') ||
                   url.hostname.includes('sunrise-sunset') ||
                   url.hostname.includes('marine-api.open-meteo') ||
                   url.hostname.includes('corsproxy.io');
