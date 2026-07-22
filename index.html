@@ -381,12 +381,7 @@
         .share-mode .week-block .wb-tide { font-size: 0.6em; }
         .share-mode .week-block .wb-date { font-size: 1.1em; }
         .share-mode .week-block .wb-tides { gap: 0; }
-        .share-mode .month-grid { gap: 2px; overflow: hidden; }
-        .share-mode .month-cell { padding: 2px 1px; overflow: hidden; }
-        .share-mode .month-cell .mc-head { font-size: 22cqw; }
-        .share-mode .month-cell .mc-tide-row { font-size: 13cqw; }
-        .share-mode .month-cell .mc-tide-row .mc-time { }
-        .share-mode .month-cell .mc-tide-row .mc-level { }
+        .share-mode .month-table .mc-tide-row { font-size: 8px; }
         .share-mode .month-weekdays span { font-size: 0.5em; }
 
         .share-legend {
@@ -446,7 +441,7 @@
         .week-block .wb-tide .wb-sep { opacity: 0.3; text-align: center; }
         .week-block .wb-tide .wb-level { font-weight: 600; text-align: right; }
 
-        /* ===== MONTH VIEW (calendário) ===== */
+        /* ===== MONTH VIEW (tabela) ===== */
         .month-nav {
             display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 14px); margin-bottom: clamp(8px, 2vw, 14px);
         }
@@ -460,64 +455,59 @@
         .month-nav button:hover { background: #F4FAFA; }
 
         .month-weekdays {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
-            width: 100%; max-width: 420px; margin: 0 auto 8px; padding: 0 12px; box-sizing: border-box;
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            width: 100%; max-width: 500px; margin: 0 auto 6px; padding: 0 8px; box-sizing: border-box;
         }
         .month-weekdays span {
-            text-align: center; font-size: 10px; text-transform: uppercase;
-            color: #527178; letter-spacing: 1px; padding: 4px 0;
+            text-align: center; font-size: 9px; text-transform: uppercase; font-weight: 600;
+            color: #527178; letter-spacing: 0.5px; padding: 4px 0;
+            border-bottom: 2px solid #B7E5E2;
         }
 
-        .month-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
-            width: 100%; max-width: 420px; margin: 0 auto; padding: 0 12px; box-sizing: border-box;
+        .month-table {
+            width: 100%; max-width: 500px; margin: 0 auto; padding: 0 8px; box-sizing: border-box;
+            border-collapse: separate; border-spacing: 0;
         }
 
-        .month-cell {
-            aspect-ratio: 1 / 1; container-type: inline-size;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 4px; border-radius: 8px;
-            background-color: #fafafa;
-            border-top: 3px solid transparent; border-bottom: 3px solid transparent;
-            border-left: none; border-right: none;
-            overflow: hidden; box-sizing: border-box;
-            cursor: pointer; transition: background 0.2s;
-        }
-        .month-cell:hover { background: #F4FAFA; }
-        .month-cell.empty { background: transparent; border-color: transparent; pointer-events: none; }
-        .month-cell.is-today { border-color: #00DFC3; background: rgba(0,223,195,.08); }
+        .month-table .mt-row { border-bottom: 1px solid #e0e0e0; }
+        .month-table .mt-row:last-child { border-bottom: none; }
 
-        .month-cell .mc-head {
-            font-size: 22cqw; font-weight: 700; margin: 0; line-height: 1;
-            text-align: center; flex-shrink: 0; color: #102A30;
+        .month-table .mt-cell {
+            width: 14.28%; vertical-align: top;
+            padding: 6px 2px; cursor: pointer;
+            border-left: 1px dashed #d0e8e6;
+            transition: background 0.15s;
         }
+        .month-table .mt-cell:first-child { border-left: none; }
+        .month-table .mt-cell:hover { background: #F4FAFA; }
+        .month-table .mt-cell.empty { background: transparent; pointer-events: none; }
+        .month-table .mt-cell.is-today { background: rgba(0,223,195,.06); }
+        .month-table .mt-cell.is-today .mc-date { color: #00606C; font-weight: 800; }
 
-        .month-cell .mc-body {
-            flex: 1; display: flex; flex-direction: column; justify-content: center;
-            gap: 0; min-height: 0; overflow: hidden;
+        .month-table .mc-date {
+            font-size: 11px; font-weight: 700; color: #102A30;
+            text-align: center; margin-bottom: 4px; line-height: 1;
         }
 
-        .month-cell .mc-tide-row {
-            display: grid; grid-template-columns: 1fr auto auto auto;
-            align-items: center; justify-items: center;
-            font-size: 13cqw; line-height: 1.15;
-            white-space: nowrap; padding: 0; margin: 0;
+        .month-table .mc-tides {
+            display: flex; flex-direction: column; gap: 2px;
         }
 
-        .month-cell .mc-tide-row .mc-time {
-            color: #666; text-align: right; width: 100%; padding-right: 1cqw;
+        .month-table .mc-tide-row {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 9px; line-height: 1.2; gap: 2px;
         }
 
-        .month-cell .mc-tide-row .mc-sep {
-            opacity: 0.3; padding: 0 0.5cqw;
+        .month-table .mc-tide-row .mc-time {
+            color: #527178; font-weight: 500; min-width: 24px;
         }
 
-        .month-cell .mc-tide-row .mc-level {
-            font-weight: 600; color: #000; text-align: left; width: 100%; padding-left: 0.5cqw;
+        .month-table .mc-tide-row .mc-level {
+            color: #102A30; font-weight: 600; text-align: right; flex: 1;
         }
 
-        .month-cell .mc-tide-row .tide-arrow {
-            justify-self: end; padding-right: 1cqw;
+        .month-table .mc-tide-row .tide-arrow {
+            font-size: 8px; min-width: 10px; text-align: right;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -886,7 +876,7 @@
             .hamburger, .theme-toggle, .social-link, .social-contact,
             .astro-line .astro-label, .astro-line .astro-val, .info-box,
             .month-nav .month-title, .month-nav button, .month-weekdays span,
-            .month-cell, .month-cell .mc-head, .week-block, .week-block .wb-day,
+            .month-table .mt-cell, .month-table .mc-date, .week-block, .week-block .wb-day,
             .week-block .wb-date, .week-block .wb-tide, .share-legend,
             .share-legend .legend-title, .share-legend .legend-item,
             .panel, .panel h3, .panel-field label, .panel-field input, .panel-field select,
@@ -936,13 +926,16 @@
             .panel-field select { background-color: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
             .panel-field select:focus { border-color: #00DFC3 !important; box-shadow: 0 0 0 4px rgba(0,223,195,.18) !important; }
             .month-nav button { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
-            .month-cell { background: rgba(255,255,255,.06) !important; border: none !important; border-top: 3px solid transparent !important; border-bottom: 3px solid transparent !important; }
-            .month-cell:hover { background: rgba(255,255,255,.1) !important; }
-            .month-cell.is-today { border-color: #00DFC3 !important; background: rgba(0,223,195,.12) !important; }
-            .month-cell.empty { background: transparent !important; border-color: transparent !important; }
-            .month-cell .mc-head { color: #F4FAFA !important; }
-            .month-cell .mc-tide-row .mc-time { color: rgba(255,255,255,.6) !important; }
-            .month-cell .mc-tide-row .mc-level { color: rgba(255,255,255,.85) !important; }
+            .month-table .mt-row { border-bottom-color: rgba(255,255,255,.1) !important; }
+            .month-table .mt-cell { border-left-color: rgba(255,255,255,.1) !important; background: rgba(255,255,255,.03) !important; }
+            .month-table .mt-cell:hover { background: rgba(255,255,255,.08) !important; }
+            .month-table .mt-cell.empty { background: transparent !important; }
+            .month-table .mt-cell.is-today { background: rgba(0,223,195,.1) !important; }
+            .month-table .mt-cell.is-today .mc-date { color: #00DFC3 !important; }
+            .month-table .mc-date { color: #F4FAFA !important; }
+            .month-table .mc-tide-row .mc-time { color: rgba(255,255,255,.5) !important; }
+            .month-table .mc-tide-row .mc-level { color: rgba(255,255,255,.8) !important; }
+            .month-weekdays span { border-bottom-color: rgba(255,255,255,.15) !important; }
             .range-fields label { color: rgba(255,255,255,.6) !important; }
             .range-fields input[type="date"] { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; -webkit-text-fill-color: #FFFFFF !important; }
             .panel-btn-cancel { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
@@ -1824,9 +1817,13 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const firstDay = new Date(year, month, 1).getDay();
 
-            let cells = '';
+            let rows = '';
+            let weekRow = '';
+            let cellCount = 0;
+
             for (let i = 0; i < firstDay; i++) {
-                cells += '<div class="month-cell empty"></div>';
+                weekRow += '<td class="mt-cell empty"></td>';
+                cellCount++;
             }
 
             for (let d = 1; d <= daysInMonth; d++) {
@@ -1834,23 +1831,35 @@
                 const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
 
                 let tides = '';
-                let borderStyle = '';
                 if (dayData) {
-                    const prevDayHours = d > 1 && harbor.months[0].days[d - 2] ? harbor.months[0].days[d - 2].hours : null;
                     dayData.hours.forEach((h, i) => {
                         const arrow = getArrowForRow(dayData.hours, i);
                         tides += `<div class="mc-tide-row">
-                            <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
+                            <span class="mc-time">${h.hour.substring(0,5)}</span>
+                            <span class="mc-level">${h.level.toFixed(2)}</span>
+                            <span class="tide-arrow">${arrowHtml(arrow)}</span>
                         </div>`;
                     });
-                    const dominant = getDayTideState(dayData.hours);
-                    borderStyle = ` style="border-top: 3px solid ${ARROW_COLORS[dominant]}; border-bottom: 3px solid ${ARROW_COLORS[dominant]}"`;
                 }
 
-                cells += `<div class="month-cell${isToday ? ' is-today' : ''}"${borderStyle} onclick="goToDay(${year},${month},${d})">
-                    <div class="mc-head">${d}</div>
-                    <div class="mc-body">${tides}</div>
-                </div>`;
+                weekRow += `<td class="mt-cell${isToday ? ' is-today' : ''}" onclick="goToDay(${year},${month},${d})">
+                    <div class="mc-date">${d}</div>
+                    <div class="mc-tides">${tides}</div>
+                </td>`;
+                cellCount++;
+
+                if (cellCount === 7) {
+                    rows += `<tr class="mt-row">${weekRow}</tr>`;
+                    weekRow = '';
+                    cellCount = 0;
+                }
+            }
+
+            if (cellCount > 0 && cellCount < 7) {
+                for (let i = cellCount; i < 7; i++) {
+                    weekRow += '<td class="mt-cell empty"></td>';
+                }
+                rows += `<tr class="mt-row">${weekRow}</tr>`;
             }
 
             content.innerHTML = `
@@ -1877,7 +1886,7 @@
                     <div class="month-weekdays">
                         ${DAY_NAMES_SHORT.map(d => `<span>${d}</span>`).join('')}
                     </div>
-                    <div class="month-grid">${cells}</div>
+                    <table class="month-table">${rows}</table>
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
