@@ -459,8 +459,8 @@
             width: 100%; margin: 0 auto 6px; padding: 0 4px; box-sizing: border-box;
         }
         .month-weekdays span {
-            text-align: center; font-size: 8px; text-transform: uppercase; font-weight: 600;
-            color: #527178; letter-spacing: 0.5px; padding: 3px 0;
+            text-align: center; font-size: 9px; text-transform: uppercase; font-weight: 600;
+            color: #527178; letter-spacing: 0.5px; padding: 4px 0;
             border-bottom: 2px solid #B7E5E2;
         }
 
@@ -469,13 +469,13 @@
             border-collapse: separate; border-spacing: 0;
         }
 
-        .month-table .mt-row { border-bottom: 1px dashed #d0e8e6; }
         .month-table .mt-row:last-child { border-bottom: none; }
 
         .month-table .mt-cell {
             width: 14.28%; vertical-align: top;
             padding: 4px 1px; cursor: pointer;
             border-left: 1px dashed #d0e8e6;
+            border-bottom: 1px dashed #d0e8e6;
             transition: background 0.15s;
         }
         .month-table .mt-cell:first-child { border-left: none; }
@@ -485,21 +485,21 @@
         .month-table .mt-cell.is-today .mc-date { color: #00606C; font-weight: 800; }
 
         .month-table .mc-date {
-            font-size: 10px; font-weight: 700; color: #102A30;
-            text-align: center; margin-bottom: 2px; line-height: 1;
+            font-size: 11px; font-weight: 700; color: #102A30;
+            text-align: center; margin-bottom: 4px; line-height: 1;
         }
 
         .month-table .mc-tides {
-            display: flex; flex-direction: column; gap: 1px;
+            display: flex; flex-direction: column; gap: 2px;
         }
 
         .month-table .mc-tide-row {
             display: flex; align-items: center; justify-content: space-between;
-            font-size: 8px; line-height: 1.1; gap: 1px;
+            font-size: 9px; line-height: 1.2; gap: 2px;
         }
 
         .month-table .mc-tide-row .mc-time {
-            color: #527178; font-weight: 500; min-width: 20px;
+            color: #527178; font-weight: 500; min-width: 24px;
         }
 
         .month-table .mc-tide-row .mc-level {
@@ -507,7 +507,7 @@
         }
 
         .month-table .mc-tide-row .tide-arrow {
-            font-size: 7px; min-width: 8px; text-align: right;
+            font-size: 8px; min-width: 10px; text-align: right;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
@@ -523,6 +523,8 @@
 
         @media (max-width: 420px) {
             .week-grid { grid-template-columns: repeat(2, 1fr); }
+            .month-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .month-table { min-width: 480px; }
         }
     </style>
 </head>
@@ -926,8 +928,7 @@
             .panel-field select { background-color: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
             .panel-field select:focus { border-color: #00DFC3 !important; box-shadow: 0 0 0 4px rgba(0,223,195,.18) !important; }
             .month-nav button { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
-            .month-table .mt-row { border-bottom-color: rgba(255,255,255,.1) !important; }
-            .month-table .mt-cell { border-left-color: rgba(255,255,255,.1) !important; background: rgba(255,255,255,.03) !important; }
+            .month-table .mt-cell { border-left-color: rgba(255,255,255,.1) !important; border-bottom-color: rgba(255,255,255,.1) !important; background: rgba(255,255,255,.03) !important; }
             .month-table .mt-cell:hover { background: rgba(255,255,255,.08) !important; }
             .month-table .mt-cell.empty { background: transparent !important; }
             .month-table .mt-cell.is-today { background: rgba(0,223,195,.1) !important; }
@@ -1886,7 +1887,7 @@
                     <div class="month-weekdays">
                         ${DAY_NAMES_SHORT.map(d => `<span>${d}</span>`).join('')}
                     </div>
-                    <table class="month-table">${rows}</table>
+                    <div class="month-table-wrap"><table class="month-table">${rows}</table></div>
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">

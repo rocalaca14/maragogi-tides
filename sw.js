@@ -1,4 +1,4 @@
-const CACHE_STATIC = 'mares-static-v9';
+const CACHE_STATIC = 'mares-static-v10';
 const CACHE_API = 'mares-api-v2';
 
 self.addEventListener('install', (event) => {
