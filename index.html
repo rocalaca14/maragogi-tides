@@ -1600,7 +1600,7 @@
             }, { passive: true });
 
             content.addEventListener('touchend', (e) => {
-                if (!isSwiping) return;
+                if (!isSwiping || currentViewType !== 'day') return;
                 const dx = e.changedTouches[0].screenX - touchStartX;
                 const dy = e.changedTouches[0].screenY - touchStartY;
                 if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
@@ -1737,41 +1737,11 @@
                 </div>`;
         }
 
-        // ===== WEEK VIEW (grid de blocos) =====
+        // ===== PERIOD VIEW (tabela) =====
         function renderWeekView(data, dates) {
             const content = document.getElementById('content');
             const harbor = data.data[0];
-            const meanLevel = harbor.mean_level;
-            let blocks = '';
             const allHours = [];
-
-            dates.forEach((date, i) => {
-                const dayData = harbor.months[0].days[i];
-                if (!dayData) return;
-                const hours = dayData.hours;
-                allHours.push(...hours);
-                const isToday = date.toDateString() === today.toDateString();
-                const dayName = DAY_NAMES[date.getDay()];
-                const dayNum = date.getDate();
-
-                let tides = '';
-                const prevDayHoursForPeriod = i > 0 && harbor.months[0].days[i - 1] ? harbor.months[0].days[i - 1].hours : null;
-                hours.forEach((h, j) => {
-                    const arrow = getArrowForRow(hours, j);
-                    tides += `<div class="wb-tide">
-                        <span class="wb-time">${h.hour.substring(0,5)}</span>
-                        <span class="wb-sep">-</span>
-                        <span class="wb-level">${h.level.toFixed(2)}</span>
-                        ${arrowHtml(arrow)}
-                    </div>`;
-                });
-
-                blocks += `<div class="week-block${isToday ? ' is-today' : ''}">
-                    <div class="wb-day">${dayName}</div>
-                    <div class="wb-date">${dayNum}</div>
-                    <div class="wb-tides">${tides}</div>
-                </div>`;
-            });
 
             const firstDate = dates[0];
             const lastDate = dates[dates.length - 1];
@@ -1779,6 +1749,53 @@
             const periodLabel = dates.length === 7 && firstDate.toDateString() === today.toDateString()
                 ? 'Próximos 7 dias'
                 : `${fmtD(firstDate)} a ${fmtD(lastDate)}`;
+
+            const firstDayOfWeek = firstDate.getDay();
+            let rows = '';
+            let weekRow = '';
+            let cellCount = 0;
+
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                weekRow += '<td class="mt-cell empty"></td>';
+                cellCount++;
+            }
+
+            dates.forEach((date, i) => {
+                const dayData = harbor.months[0].days[i];
+                const isToday = date.toDateString() === today.toDateString();
+
+                let tides = '';
+                if (dayData) {
+                    allHours.push(...dayData.hours);
+                    dayData.hours.forEach((h, j) => {
+                        const arrow = getArrowForRow(dayData.hours, j);
+                        tides += `<div class="mc-tide-row">
+                            <span class="mc-time">${h.hour.substring(0,5)}</span>
+                            <span class="mc-level">${h.level.toFixed(2)}</span>
+                            <span class="tide-arrow">${arrowHtml(arrow)}</span>
+                        </div>`;
+                    });
+                }
+
+                weekRow += `<td class="mt-cell${isToday ? ' is-today' : ''}" onclick="goToDay(${date.getFullYear()},${date.getMonth()},${date.getDate()})">
+                    <div class="mc-date">${date.getDate()}</div>
+                    <div class="mc-tides">${tides}</div>
+                </td>`;
+                cellCount++;
+
+                if (cellCount === 7) {
+                    rows += `<tr class="mt-row">${weekRow}</tr>`;
+                    weekRow = '';
+                    cellCount = 0;
+                }
+            });
+
+            if (cellCount > 0 && cellCount < 7) {
+                for (let i = cellCount; i < 7; i++) {
+                    weekRow += '<td class="mt-cell empty"></td>';
+                }
+                rows += `<tr class="mt-row">${weekRow}</tr>`;
+            }
 
             content.innerHTML = `
                 <div id="shareTarget" class="card">
@@ -1796,8 +1813,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="week-grid">${blocks}</div>
+                    <div class="month-weekdays">
+                        ${DAY_NAMES_SHORT.map(d => `<span>${d}</span>`).join('')}
+                    </div>
+                    <div class="month-table-wrap"><table class="month-table">${rows}</table></div>
                     ${buildDynamicLegend(allHours)}
+                    ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
                     <button class="share-btn" onclick="shareView()">${saveIconSvg} Salvar</button>
