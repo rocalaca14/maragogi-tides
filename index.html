@@ -1052,7 +1052,7 @@
         }
 
         // ===== SHARE LEGEND =====
-        const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa (06h-16h)', orange: 'Maré baixa (fora do horário)' };
+        const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa (06h-15h)', orange: 'Maré baixa (fora do horário)' };
         const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down' };
 
         function buildDynamicLegend(hours) {
@@ -1079,7 +1079,7 @@
             return `<div class="share-legend">
                 <div class="legend-title">Legenda</div>
                 <div class="legend-item"><span class="legend-arrow">${upRed}</span> Maré alta</div>
-                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa (06h-16h)</div>
+                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa (06h-15h)</div>
                 <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa (fora do horário)</div>
             </div>`;
         }
