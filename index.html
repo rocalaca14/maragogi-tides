@@ -298,8 +298,10 @@
             border: 1px solid #B7E5E2; border-radius: 16px;
             padding: clamp(14px, 3.5vw, 20px); margin-bottom: 12px;
             box-shadow: 0 6px 24px rgba(0,0,0,.08);
-            overflow: hidden;
+            overflow-x: auto;
         }
+
+        .month-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         /* ===== DAY VIEW ===== */
         .day-header { text-align: center; margin-bottom: clamp(10px, 2.5vw, 16px); }
