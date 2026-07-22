@@ -345,17 +345,17 @@
         .status-dot.falling { background: #019391; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        .tide-table { display: flex; flex-direction: column; gap: 8px; background-color: #fff; border-radius: 12px; padding: 12px; width: 100%; }
+        .tide-table { display: flex; flex-direction: column; gap: 10px; background-color: #fff; border-radius: 12px; padding: 14px; width: 100%; }
         .tide-row {
             display: grid; grid-template-columns: 1fr auto auto auto;
-            align-items: center; justify-items: center;
-            padding: 6px 0; border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+            padding: 8px 4px; border-bottom: 1px solid #e0e0e0;
             background: #F4FAFA; border-radius: 8px;
         }
         .tide-row:last-child { border-bottom: none; }
-        .tide-row .tide-time { font-size: 14px; font-weight: 700; text-align: right; width: 100%; padding-right: 8px; }
-        .tide-row .tide-sep { opacity: 0.3; font-size: 14px; }
-        .tide-row .tide-level { font-size: 13px; color: #555; text-align: left; width: 100%; padding-left: 8px; }
+        .tide-row .tide-time { font-size: 14px; font-weight: 700; color: #102A30; text-align: right; width: 100%; padding-right: 12px; }
+        .tide-row .tide-sep { font-size: 14px; color: #999; padding: 0 4px; }
+        .tide-row .tide-level { font-size: 13px; color: #527178; text-align: left; width: 100%; padding-left: 12px; }
         .tide-row .tide-arrow { font-size: 18px; justify-self: end; padding-right: 12px; }
 
         /* Share header (visible only in share image) */
