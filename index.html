@@ -347,14 +347,16 @@
 
         .tide-table { display: flex; flex-direction: column; gap: 8px; background-color: #fff; border-radius: 12px; padding: 12px; width: 100%; }
         .tide-row {
-            display: grid; grid-template-columns: 100px 1fr 40px; gap: 12px;
-            align-items: center; padding: 6px 0; border-bottom: 1px solid #e0e0e0;
+            display: grid; grid-template-columns: 1fr auto auto auto;
+            align-items: center; justify-items: center;
+            padding: 6px 0; border-bottom: 1px solid #e0e0e0;
             background: #F4FAFA; border-radius: 8px;
         }
         .tide-row:last-child { border-bottom: none; }
-        .tide-row .tide-time { font-size: 14px; font-weight: 700; padding-left: clamp(6px, 2vw, 10px); }
-        .tide-row .tide-level { font-size: 13px; color: #555; text-align: right; padding-right: clamp(6px, 2vw, 10px); }
-        .tide-row .tide-arrow { font-size: 18px; text-align: center; width: 40px; }
+        .tide-row .tide-time { font-size: 14px; font-weight: 700; text-align: right; width: 100%; padding-right: 8px; }
+        .tide-row .tide-sep { opacity: 0.3; font-size: 14px; }
+        .tide-row .tide-level { font-size: 13px; color: #555; text-align: left; width: 100%; padding-left: 8px; }
+        .tide-row .tide-arrow { font-size: 18px; justify-self: end; padding-right: 12px; }
 
         /* Share header (visible only in share image) */
         .share-header { display: none; padding: clamp(10px, 2.5vw, 14px) clamp(10px, 3vw, 16px) clamp(6px, 1.5vw, 10px); border-bottom: 1px solid #B7E5E2; margin-bottom: 8px; }
@@ -910,6 +912,7 @@
             input[type="date"]::-webkit-datetime-edit-year-field { -webkit-text-fill-color: #FFFFFF !important; }
             input[type="date"]::placeholder { color: rgba(255,255,255,.4) !important; }
             .tide-row .tide-time { color: rgba(255,255,255,.5) !important; }
+            .tide-row .tide-sep { color: rgba(255,255,255,.3) !important; }
             .tide-row { background: rgba(255,255,255,.04) !important; }
             .tide-row:hover { background: rgba(255,255,255,.08) !important; }
             .day-nav-btn { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
@@ -1640,6 +1643,7 @@
                 const arrow = getArrowForRow(hours, i);
                 rows += `<div class="tide-row">
                     <div class="tide-time">${h.hour.substring(0,5)}</div>
+                    <div class="tide-sep">-</div>
                     <div class="tide-level">${h.level.toFixed(2)}m (${(h.level*3.28084).toFixed(1)}ft)</div>
                     <div class="tide-arrow">${arrowHtml(arrow)}</div>
                 </div>`;
