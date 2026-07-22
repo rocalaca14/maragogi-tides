@@ -497,21 +497,26 @@
         }
 
         .month-cell .mc-tide-row {
-            display: flex; align-items: center; justify-content: center;
+            display: grid; grid-template-columns: 1fr auto auto auto;
+            align-items: center; justify-items: center;
             font-size: 13cqw; line-height: 1.15;
             white-space: nowrap; padding: 0; margin: 0;
         }
 
         .month-cell .mc-tide-row .mc-time {
-            color: #666;
+            color: #666; text-align: right; width: 100%; padding-right: 1cqw;
         }
 
         .month-cell .mc-tide-row .mc-sep {
-            opacity: 0.3; margin: 0 1px;
+            opacity: 0.3; padding: 0 0.5cqw;
         }
 
         .month-cell .mc-tide-row .mc-level {
-            font-weight: 600; color: #000;
+            font-weight: 600; color: #000; text-align: left; width: 100%; padding-left: 0.5cqw;
+        }
+
+        .month-cell .mc-tide-row .tide-arrow {
+            justify-self: end; padding-right: 1cqw;
         }
 
         .loading { text-align: center; padding: clamp(24px, 6vw, 40px); }
