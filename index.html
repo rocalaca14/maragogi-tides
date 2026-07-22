@@ -347,14 +347,13 @@
 
         .tide-table { display: flex; flex-direction: column; gap: 10px; background-color: #fff; border-radius: 12px; padding: 14px; width: 100%; }
         .tide-row {
-            display: grid; grid-template-columns: 1fr auto auto auto;
+            display: grid; grid-template-columns: 1fr auto auto;
             align-items: center;
             padding: 8px 4px; border-bottom: 1px solid #e0e0e0;
             background: #F4FAFA; border-radius: 8px;
         }
         .tide-row:last-child { border-bottom: none; }
         .tide-row .tide-time { font-size: 14px; font-weight: 700; color: #102A30; text-align: left; width: 100%; padding-left: 12px; }
-        .tide-row .tide-sep { font-size: 14px; color: #999; text-align: center; padding: 0 4px; }
         .tide-row .tide-level { font-size: 13px; color: #527178; text-align: left; width: 100%; padding-left: 12px; }
         .tide-row .tide-arrow { font-size: 18px; justify-self: end; padding-right: 12px; }
 
@@ -912,7 +911,6 @@
             input[type="date"]::-webkit-datetime-edit-year-field { -webkit-text-fill-color: #FFFFFF !important; }
             input[type="date"]::placeholder { color: rgba(255,255,255,.4) !important; }
             .tide-row .tide-time { color: rgba(255,255,255,.5) !important; }
-            .tide-row .tide-sep { color: rgba(255,255,255,.3) !important; }
             .tide-row { background: rgba(255,255,255,.04) !important; }
             .tide-row:hover { background: rgba(255,255,255,.08) !important; }
             .day-nav-btn { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
@@ -1643,7 +1641,6 @@
                 const arrow = getArrowForRow(hours, i);
                 rows += `<div class="tide-row">
                     <div class="tide-time">${h.hour.substring(0,5)}</div>
-                    <div class="tide-sep">-</div>
                     <div class="tide-level">${h.level.toFixed(2)}m (${(h.level*3.28084).toFixed(1)}ft)</div>
                     <div class="tide-arrow">${arrowHtml(arrow)}</div>
                 </div>`;
