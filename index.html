@@ -1046,14 +1046,14 @@
         }
 
         // ===== SHARE LEGEND =====
-        const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa', orange: 'Baixa transição', neutral: 'Intermediária' };
-        const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down', neutral: 'up' };
+        const LEGEND_LABELS = { red: 'Maré alta', green: 'Maré baixa (06h-16h)', orange: 'Maré baixa (fora do horário)' };
+        const LEGEND_SYMBOLS = { red: 'up', green: 'down', orange: 'down' };
 
-        function buildDynamicLegend(hours, prevDayHours) {
+        function buildDynamicLegend(hours) {
             const seen = new Set();
             const items = [];
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i, prevDayHours);
+                const arrow = getArrowForRow(hours, i);
                 const key = arrow.colorClass;
                 if (!seen.has(key)) {
                     seen.add(key);
@@ -1070,13 +1070,11 @@
             const upRed = arrowHtml({ symbol: 'up', colorClass: 'red' });
             const downGreen = arrowHtml({ symbol: 'down', colorClass: 'green' });
             const downOrange = arrowHtml({ symbol: 'down', colorClass: 'orange' });
-            const upNeutral = arrowHtml({ symbol: 'up', colorClass: 'neutral' });
             return `<div class="share-legend">
                 <div class="legend-title">Legenda</div>
                 <div class="legend-item"><span class="legend-arrow">${upRed}</span> Maré alta</div>
-                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa</div>
-                <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa em transição</div>
-                <div class="legend-item"><span class="legend-arrow">${upNeutral}</span> Maré intermediária</div>
+                <div class="legend-item"><span class="legend-arrow">${downGreen}</span> Maré baixa (06h-16h)</div>
+                <div class="legend-item"><span class="legend-arrow">${downOrange}</span> Maré baixa (fora do horário)</div>
             </div>`;
         }
 
@@ -1347,33 +1345,18 @@
             return { text: 'Fora do horário', class: '' };
         }
 
-        function calculateTideColor(currentLevel, prevLevel) {
-            if (currentLevel > 1.60) return 'red';
-            if (currentLevel < 0.70) return 'green';
-            if (prevLevel !== null && currentLevel < prevLevel) return 'orange';
-            return 'neutral';
+        const MEAN_LEVEL = 1.25;
+
+        function getArrowInfo(currentLevel, hourStr) {
+            const isHigh = currentLevel > MEAN_LEVEL;
+            const h = parseInt(hourStr.split(':')[0], 10);
+            if (isHigh) return { symbol: 'up', colorClass: 'red' };
+            if (h >= 6 && h < 16) return { symbol: 'down', colorClass: 'green' };
+            return { symbol: 'down', colorClass: 'orange' };
         }
 
-        function getArrowInfo(currentLevel, prevLevel, nextLevel) {
-            let rising = null;
-            if (prevLevel !== null) {
-                rising = currentLevel > prevLevel;
-            } else if (nextLevel !== null) {
-                rising = currentLevel < nextLevel;
-            }
-
-            const symbol = (rising === false) ? 'down' : 'up';
-            const colorClass = calculateTideColor(currentLevel, prevLevel);
-            return { symbol, colorClass };
-        }
-
-        function getArrowForRow(hours, i, prevDayHours) {
-            let prev = i > 0 ? hours[i - 1].level : null;
-            if (i === 0 && prevDayHours && prevDayHours.length > 0) {
-                prev = prevDayHours[prevDayHours.length - 1].level;
-            }
-            const next = i < hours.length - 1 ? hours[i + 1].level : null;
-            return getArrowInfo(hours[i].level, prev, next);
+        function getArrowForRow(hours, i) {
+            return getArrowInfo(hours[i].level, hours[i].hour);
         }
 
         function arrowHtml(arrow) {
@@ -1383,16 +1366,16 @@
 
         const ARROW_COLORS = { red: '#FF0000', green: '#00AA00', orange: '#FF8800', neutral: '#999999' };
 
-        function getDayTideState(hours, prevDayHours) {
-            const counts = { red: 0, green: 0, orange: 0, neutral: 0 };
+        function getDayTideState(hours) {
+            const counts = { red: 0, green: 0, orange: 0 };
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i, prevDayHours);
+                const arrow = getArrowForRow(hours, i);
                 counts[arrow.colorClass]++;
             });
             return Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
         }
 
-        function generateTideChart(hours, meanLevel, prevDayHours) {
+        function generateTideChart(hours, meanLevel) {
             if (!hours || hours.length < 2) return '';
             const w = 320, h = 100, padL = 30, padR = 10, padT = 10, padB = 20;
             const chartW = w - padL - padR;
@@ -1407,7 +1390,7 @@
             const getY = (lvl) => padT + chartH - ((lvl - minL) / rangeL) * chartH;
 
             function getArrowColor(idx) {
-                const arrow = getArrowForRow(hours, idx, prevDayHours);
+                const arrow = getArrowForRow(hours, idx);
                 return ARROW_COLORS[arrow.colorClass];
             }
 
@@ -1649,7 +1632,7 @@
             let rows = '';
             const prevDayHours = date.getDate() > 1 && harbor.months[0].days[date.getDate() - 2] ? harbor.months[0].days[date.getDate() - 2].hours : null;
             hours.forEach((h, i) => {
-                const arrow = getArrowForRow(hours, i, prevDayHours);
+                const arrow = getArrowForRow(hours, i);
                 rows += `<div class="tide-row">
                     <div class="tide-time">${h.hour.substring(0,5)}</div>
                     <div class="tide-level">${h.level.toFixed(2)}m (${(h.level*3.28084).toFixed(1)}ft)</div>
@@ -1740,9 +1723,9 @@
                         ${rows}
                     </div>
                     <div class="tide-chart-container">
-                        ${generateTideChart(hours, meanLevel, prevDayHours)}
+                        ${generateTideChart(hours, meanLevel)}
                     </div>
-                    ${buildDynamicLegend(hours, prevDayHours)}
+                    ${buildDynamicLegend(hours)}
                     ${getLegendHtml()}
                 </div>
                 <div class="btn-row">
@@ -1772,7 +1755,7 @@
                 let tides = '';
                 const prevDayHoursForPeriod = i > 0 && harbor.months[0].days[i - 1] ? harbor.months[0].days[i - 1].hours : null;
                 hours.forEach((h, j) => {
-                    const arrow = getArrowForRow(hours, j, prevDayHoursForPeriod);
+                    const arrow = getArrowForRow(hours, j);
                     tides += `<div class="wb-tide">
                         <span class="wb-time">${h.hour.substring(0,5)}</span>
                         <span class="wb-sep">-</span>
@@ -1849,12 +1832,12 @@
                 if (dayData) {
                     const prevDayHours = d > 1 && harbor.months[0].days[d - 2] ? harbor.months[0].days[d - 2].hours : null;
                     dayData.hours.forEach((h, i) => {
-                        const arrow = getArrowForRow(dayData.hours, i, prevDayHours);
+                        const arrow = getArrowForRow(dayData.hours, i);
                         tides += `<div class="mc-tide-row">
                             <span class="mc-time">${h.hour.substring(0,5)}</span><span class="mc-sep">-</span><span class="mc-level">${h.level.toFixed(2)}</span>${arrowHtml(arrow)}
                         </div>`;
                     });
-                    const dominant = getDayTideState(dayData.hours, prevDayHours);
+                    const dominant = getDayTideState(dayData.hours);
                     borderStyle = ` style="border-top: 3px solid ${ARROW_COLORS[dominant]}; border-bottom: 3px solid ${ARROW_COLORS[dominant]}"`;
                 }
 
