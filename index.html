@@ -302,8 +302,8 @@
         }
 
         /* ===== DAY VIEW ===== */
-        .day-header { text-align: center; margin-bottom: clamp(10px, 2.5vw, 16px); }
-        .day-header .day-name { font-size: clamp(1.4em, 4.5vw, 1.9em); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        .day-header { text-align: center; margin-bottom: 12px; }
+        .day-header .day-name { font-size: clamp(1.2em, 4vw, 1.6em); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .day-header .day-date-row {
             display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 14px); margin-top: 4px;
         }
@@ -319,11 +319,11 @@
 
         .astro-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-top: 8px; font-size: clamp(0.55em, 1.6vw, 0.7em); line-height: 1.4;
+            margin-top: 12px; font-size: clamp(0.55em, 1.6vw, 0.7em); line-height: 1.4;
         }
 
         .astro-side {
-            display: flex; flex-direction: column; gap: 1px;
+            display: flex; flex-direction: column; gap: 4px;
         }
 
         .astro-line {
@@ -337,7 +337,7 @@
 
         .current-status {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-bottom: clamp(10px, 2.5vw, 14px); font-size: clamp(0.78em, 2.2vw, 0.9em); padding: clamp(5px, 1.5vw, 7px);
+            margin-bottom: 12px; font-size: clamp(0.78em, 2.2vw, 0.9em); padding: clamp(5px, 1.5vw, 7px);
             background: #F4FAFA; color: #102A30; border-radius: 10px;
         }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
@@ -348,14 +348,14 @@
         .tide-table { display: flex; flex-direction: column; gap: 8px; background-color: #fff; border-radius: 12px; padding: 12px; width: 100%; }
         .tide-row {
             display: grid; grid-template-columns: 1fr auto auto auto;
-            align-items: center; justify-items: center;
+            align-items: center;
             padding: 6px 0; border-bottom: 1px solid #e0e0e0;
             background: #F4FAFA; border-radius: 8px;
         }
         .tide-row:last-child { border-bottom: none; }
-        .tide-row .tide-time { font-size: 14px; font-weight: 700; text-align: right; width: 100%; padding-right: 8px; }
-        .tide-row .tide-sep { opacity: 0.3; font-size: 14px; }
-        .tide-row .tide-level { font-size: 13px; color: #555; text-align: left; width: 100%; padding-left: 8px; }
+        .tide-row .tide-time { font-size: 14px; font-weight: 700; color: #102A30; text-align: right; width: 100%; padding-right: 8px; }
+        .tide-row .tide-sep { font-size: 14px; color: #999; padding: 0 2px; }
+        .tide-row .tide-level { font-size: 13px; color: #527178; text-align: left; width: 100%; padding-left: 8px; }
         .tide-row .tide-arrow { font-size: 18px; justify-self: end; padding-right: 12px; }
 
         /* Share header (visible only in share image) */
@@ -375,6 +375,7 @@
         .share-mode .day-nav-btn { display: none !important; }
         .share-mode .info-box { display: none !important; }
         .share-mode .month-nav button { display: none !important; }
+        .share-mode .dynamic-legend { display: none !important; }
         .share-mode .share-legend { display: block !important; }
         .share-mode#shareTarget { overflow: hidden; width: 100%; }
         .share-mode .week-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; overflow: hidden; }
@@ -407,7 +408,7 @@
         .dynamic-legend .dl-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
 
         .tide-chart-container {
-            margin-top: clamp(8px, 2vw, 12px); background: #F4FAFA;
+            margin-top: 12px; background: #F4FAFA;
             border-radius: 10px; padding: clamp(7px, 2vw, 10px); border: 1px solid #B7E5E2;
             overflow: hidden;
         }
@@ -418,10 +419,10 @@
 
         .info-box {
             background: rgba(0,96,108,.06); border-left: 3px solid #00606C;
-            border-radius: 0 8px 8px 0; padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); margin-top: clamp(8px, 2vw, 12px);
+            border-radius: 0 8px 8px 0; padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); margin-top: 12px;
             font-size: clamp(0.65em, 1.8vw, 0.8em); color: #527178;
         }
-        .dynamic-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: clamp(8px, 2vw, 12px); padding: clamp(6px, 1.5vw, 8px) 0; }
+        .dynamic-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px; padding: clamp(6px, 1.5vw, 8px) 0; }
         .dynamic-legend .dl-item { display: inline-flex; align-items: center; gap: 4px; font-size: clamp(0.6em, 1.6vw, 0.75em); color: #527178; }
         .dynamic-legend .dl-arrow { display: inline-flex; align-items: center; width: 1.2em; text-align: center; }
 
@@ -912,7 +913,7 @@
             input[type="date"]::-webkit-datetime-edit-year-field { -webkit-text-fill-color: #FFFFFF !important; }
             input[type="date"]::placeholder { color: rgba(255,255,255,.4) !important; }
             .tide-row .tide-time { color: rgba(255,255,255,.5) !important; }
-            .tide-row .tide-sep { color: rgba(255,255,255,.3) !important; }
+            .tide-row .tide-sep { color: rgba(255,255,255,.25) !important; }
             .tide-row { background: rgba(255,255,255,.04) !important; }
             .tide-row:hover { background: rgba(255,255,255,.08) !important; }
             .day-nav-btn { background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.15) !important; }
